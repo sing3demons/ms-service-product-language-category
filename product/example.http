@@ -1,0 +1,25 @@
+POST http://localhost:2566/products HTTP/1.1
+
+{
+    "id": "dSZOv9EZJkr",
+    "name": "Product 1",
+    "supportingLanguage": [
+        {
+            "id": "rvJmNSSp1Xt",
+            "languageCode": "th"
+        },
+        {
+            "id": "49rOwYkhq6U",
+            "languageCode": "en"
+        }
+    ],
+    "category": [
+        {
+            "id": "Zr9HD1erKpr",
+            "name": "Category"
+        }
+    ]
+}
+
+###
+GET http://localhost:2566/products?expand=category,supportingLanguage HTTP/1.1
