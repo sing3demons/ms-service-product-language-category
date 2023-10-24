@@ -1,0 +1,17 @@
+{
+  "folders": [
+	{
+		"path": "async-node-service"
+	},
+	{
+		"path": "category"
+	},
+	{
+		"path": "product"
+	},
+	{
+		"path": "productLanguage"
+	}
+],
+  "settings": {}
+}

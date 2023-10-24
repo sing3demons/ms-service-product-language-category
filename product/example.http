@@ -15,7 +15,7 @@ POST http://localhost:2566/products HTTP/1.1
     ],
     "category": [
         {
-            "id": "Zr9HD1erKpr",
+            "id": "TOVeD4oliKS",
             "name": "Category"
         }
     ]
