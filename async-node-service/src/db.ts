@@ -1,7 +1,7 @@
 import { Collection, MongoClient } from 'mongodb'
 import { Category } from './models/category.js'
 import { ProductLanguage } from './models/productLanguage.js'
-const url = 'mongodb://root:category1234@127.0.0.1:27017/?authSource=admin'
+const url = 'mongodb://mongodb1:27017,mongodb2:27018,mongodb3:27019/?replicaSet=my-replica-set'
 const client = new MongoClient(url)
 
 const dbName = 'category_microservice_db'
@@ -20,7 +20,6 @@ function collectionCategory() {
   const db = client.db('category_microservice_db')
   return db.collection<Category>('category')
 }
-
 
 function getCollection<T extends Object>(dbName: string) {
   const collectionName = `${dbName}_microservice_db`
