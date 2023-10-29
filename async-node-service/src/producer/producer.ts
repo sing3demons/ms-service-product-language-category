@@ -1,26 +1,40 @@
 import { Kafka } from 'kafkajs'
 import logger from '../utils/logger.js'
-const kafka = new Kafka({
-  clientId: 'category.category.service',
-  brokers: ['localhost:9092', '127.0.0.1:9092'],
-})
 
-async function producer(topic: string, value: any) {
-  const producer = kafka.producer()
-  await producer.connect()
-  logger.info(
-    JSON.stringify({
-      topic,
-      value,
-    })
-  )
-
-  await producer.send({
-    topic,
-    messages: [{ value: JSON.stringify(value) }],
-  })
-
-  await producer.disconnect()
+let broker = process.env.KAFKA_BROKERS
+if (!broker) {
+  broker = 'kafka:9092'
 }
 
-export { producer }
+const kafka = new Kafka({
+  clientId: 'product,category.service',
+  brokers: () => {
+    logger.info('Kafka broker: ' + broker)
+    return [broker!]
+  },
+})
+
+async function Producer(topic: string, value: any) {
+  try {
+    const producer = kafka.producer()
+    await producer.connect()
+    logger.info(
+      JSON.stringify({
+        topic,
+        value,
+      })
+    )
+
+    await producer.send({
+      topic,
+      messages: [{ value: JSON.stringify(value) }],
+    })
+
+    await producer.disconnect()
+  } catch (error) {
+    console.log('producer error')
+    console.error(error)
+  }
+}
+
+export { Producer }

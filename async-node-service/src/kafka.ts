@@ -1,36 +1,47 @@
-import { Consumer, ConsumerSubscribeTopics, EachBatchPayload, Kafka, EachMessagePayload } from 'kafkajs'
+import { Consumer, ConsumerSubscribeTopics, EachBatchPayload, Kafka, EachMessagePayload, logLevel } from 'kafkajs'
 import logger from './utils/logger.js'
 
-const groupId = 'category.category,product.product'
+const groupId = 'category.category,product.product-1'
+const clientId = 'product,category.service'
 
-export class KafkaConfig {
-  static config(): Kafka {
-    const kafka = new Kafka({
-      clientId: 'category.category.service',
-      brokers: ['localhost:9092', '127.0.0.1:9092'],
-      retry: {
-        initialRetryTime: 1000,
-        retries: 3,
-      },
-    })
-    return kafka
-  }
-}
+// export function configKafka(broker: string): Kafka {
+//   const kafka = new Kafka({
+//     clientId,
+//     brokers: () => {
+//       logger.info('Kafka broker: ' + broker)
+//       return [broker!]
+//     },
+//     requestTimeout: 25000,
+//     retry: {
+//       factor: 0,
+//       multiplier: 4,
+//       maxRetryTime: 25000,
+//       retries: 10,
+//     },
+//   })
 
-export function configKafka(): Kafka {
-  const kafka = new Kafka({
-    clientId: 'category.category.service',
-    brokers: ['localhost:9092', '127.0.0.1:9092'],
-    retry: {
-      initialRetryTime: 1000,
-      retries: 3,
-    },
-  })
-  return kafka
-}
+//   return kafka
+// }
 
 export default class KafkaNode {
-  public constructor(private kafka: Kafka) {}
+  public kafka: Kafka
+  public constructor(broker: string) {
+    this.kafka = new Kafka({
+      logLevel: logLevel.INFO,
+      clientId,
+      brokers: () => {
+        logger.info('Kafka broker: ' + broker)
+        return [broker!]
+      },
+      requestTimeout: 25000,
+      retry: {
+        factor: 0,
+        multiplier: 4,
+        maxRetryTime: 25000,
+        retries: 10,
+      },
+    })
+  }
 
   async ConnectKafka() {
     const consumer = this.kafka.consumer({ groupId })
@@ -57,6 +68,7 @@ export default class KafkaNode {
       return consumer
     } catch (e) {
       if (e instanceof Error) {
+        console.log('function startConsumer')
         logger.error(e.message)
         throw new Error(e.message)
       }

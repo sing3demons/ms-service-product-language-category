@@ -1,0 +1,8 @@
+@url=http://localhost:2566
+GET {{url}}/products HTTP/1.1
+
+###
+GET {{url}}/products HTTP/1.1
+
+###
+GET {{url}}/productLanguage HTTP/1.1

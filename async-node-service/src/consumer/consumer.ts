@@ -3,90 +3,144 @@ import logger from '../utils/logger.js'
 import { createCategory, updateCategory } from '../service/category.js'
 import { Category } from '../models/category.js'
 import TOPIC from '../constant/topic.js'
-import { producer } from '../producer/producer.js'
+import { Producer } from '../producer/producer.js'
 import { ProductLanguage } from '../models/productLanguage.js'
 import { createProductLanguage } from '../service/productLanguage.js'
 import { createProduct } from '../service/product.js'
 import { Product } from '../models/product.js'
 
-const groupId = 'category.category'
-const kafka = new Kafka({
-  clientId: 'category-app',
-  brokers: ['localhost:9092', '127.0.0.1:9092'],
-})
-async function startConsumer(): Promise<Consumer> {
-  const consumer = kafka.consumer({ groupId })
-  try {
-    if (!consumer) {
-      throw new Error('Consumer not created')
-    }
-    await consumer.connect()
+// export default class Consume {
+//   public constructor(private consumer: Consumer, private topics: string[]) {}
+//   consumeMessage(): void {
+//     try {
+//       console.log('consumer message')
+//       this.consumer.subscribe({ topics: this.topics, fromBeginning: true })
+//       this.consumer.run({
+//         eachMessage: async ({ topic, message }) => {
+//           switch (topic) {
+//             case TOPIC.createCategory:
+//               if (message.value) {
+//                 const req = JSON.parse(message.value.toString()) as Category
+//                 const result = await createCategory(req)
+//                 if (result === null || result === undefined) {
+//                   await producer(TOPIC.createCategoryFailed, result)
+//                 } else {
+//                   await producer(TOPIC.createCategorySuccess, result)
+//                 }
+//               }
+//               break
+//             case TOPIC.updateCategory:
+//               if (message.value) {
+//                 const req = JSON.parse(message?.value?.toString()) as Category
+//                 if (Array.isArray(req.products)) {
+//                   const result = await updateCategory(req)
+//                   logger.info(JSON.stringify(result))
+//                 }
+//               }
+//               break
+//             case TOPIC.createProductLanguage:
+//               if (message.value) {
+//                 const req = JSON.parse(message?.value?.toString()) as ProductLanguage
+//                 const result = await createProductLanguage(req)
+//                 if (result === null || result === undefined) {
+//                   await producer(TOPIC.createProductLanguageFailed, result)
+//                 } else {
+//                   await producer(TOPIC.createProductLanguageSuccess, result)
+//                 }
+//               }
+//               break
+//             case TOPIC.createProduct:
+//               if (message.value) {
+//                 const req = JSON.parse(message?.value?.toString()) as Product
+//                 const result = await createProduct(req)
+//                 if (result === null || result === undefined) {
+//                   await producer(TOPIC.createProductFailed, result)
+//                 } else {
+//                   await producer(TOPIC.createProductSuccess, result)
+//                 }
+//               }
+//               break
 
-    logger.info('Consumer connected')
-    return consumer
-  } catch (e) {
-    if (e instanceof Error) {
-      logger.error(e.message)
-      throw new Error(e.message)
-    }
-    return consumer
+//             default:
+//               logger.info(`No handler for topic ${topic}`)
+//               break
+//           }
+//         },
+//       })
+//     } catch (error) {}
+//   }
+// }
+
+async function consumeMessage(consumer: Consumer) {
+  try {
+    console.log('consumer message++++>')
+    await consumer.run({
+      eachMessage: async ({ topic, partition, message }) => {
+        console.log({
+          topic,
+          partition,
+          offset: message.offset,
+          value: message?.value?.toString(),
+        })
+        try {
+          console.log('consumer : run => ', topic)
+          switch (topic) {
+            case TOPIC.createCategory:
+              if (message.value) {
+                const req = JSON.parse(message.value.toString()) as Category
+                const result = await createCategory(req)
+                // if (result === null || result === undefined) {
+                //   await producer(TOPIC.createCategoryFailed, result)
+                // } else {
+                //   await producer(TOPIC.createCategorySuccess, result)
+                // }
+              }
+              break
+            case TOPIC.updateCategory:
+              if (message.value) {
+                const req = JSON.parse(message?.value?.toString()) as Category
+                if (Array.isArray(req.products)) {
+                  const result = await updateCategory(req)
+                  logger.info(JSON.stringify(result))
+                }
+              }
+              break
+            case TOPIC.createProductLanguage:
+              if (message.value) {
+                const req = JSON.parse(message?.value?.toString()) as ProductLanguage
+                const result = await createProductLanguage(req)
+                // if (result === null || result === undefined) {
+                //   await producer(TOPIC.createProductLanguageFailed, result)
+                // } else {
+                //   await producer(TOPIC.createProductLanguageSuccess, result)
+                // }
+              }
+              break
+            case TOPIC.createProduct:
+              if (message.value) {
+                const req = JSON.parse(message?.value?.toString()) as Product
+                const result = await createProduct(req)
+                // if (result === null || result === undefined) {
+                //   await producer(TOPIC.createProductFailed, result)
+                // } else {
+                //   await producer(TOPIC.createProductSuccess, result)
+                // }
+              }
+              break
+
+            default:
+              logger.info(`No handler for topic ${topic}`)
+              break
+          }
+        } catch (error) {
+          console.log('error consume message')
+          console.error(error)
+        }
+      },
+    })
+  } catch (error) {
+    console.error("Can't consume message", error)
   }
 }
 
-async function consumeMessage(consumer: Consumer, topics: string[]) {
-  await consumer.subscribe({ topics, fromBeginning: true })
-  await consumer.run({
-    eachMessage: async ({ topic, message }) => {
-      switch (topic) {
-        case TOPIC.createCategory:
-          if (message.value) {
-            const req = JSON.parse(message.value.toString()) as Category
-            const result = await createCategory(req)
-            if (result === null || result === undefined) {
-              await producer(TOPIC.createCategoryFailed, result)
-            } else {
-              await producer(TOPIC.createCategorySuccess, result)
-            }
-          }
-          break
-        case TOPIC.updateCategory:
-          if (message.value) {
-            const req = JSON.parse(message?.value?.toString()) as Category
-            if (Array.isArray(req.products)) {
-              const result = await updateCategory(req)
-              logger.info(JSON.stringify(result))
-            }
-          }
-          break
-        case TOPIC.createProductLanguage:
-          if (message.value) {
-            const req = JSON.parse(message?.value?.toString()) as ProductLanguage
-            const result = await createProductLanguage(req)
-            if (result === null || result === undefined) {
-              await producer(TOPIC.createProductLanguageFailed, result)
-            } else {
-              await producer(TOPIC.createProductLanguageSuccess, result)
-            }
-          }
-          break
-        case TOPIC.createProduct:
-          if (message.value) {
-            const req = JSON.parse(message?.value?.toString()) as Product
-            const result = await createProduct(req)
-            if (result === null || result === undefined) {
-              await producer(TOPIC.createProductFailed, result)
-            } else {
-              await producer(TOPIC.createProductSuccess, result)
-            }
-          }
-          break
-
-        default:
-          logger.info(`No handler for topic ${topic}`)
-          break
-      }
-    },
-  })
-}
-
-export { startConsumer, consumeMessage }
+export { consumeMessage }

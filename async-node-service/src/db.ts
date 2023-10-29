@@ -1,11 +1,8 @@
-import { Collection, MongoClient } from 'mongodb'
+import { MongoClient } from 'mongodb'
 import { Category } from './models/category.js'
-import { ProductLanguage } from './models/productLanguage.js'
-const url = 'mongodb://mongodb1:27017,mongodb2:27018,mongodb3:27019/?replicaSet=my-replica-set'
-const client = new MongoClient(url)
 
-const dbName = 'category_microservice_db'
-const collectionName = 'category'
+const url = process.env.MONGO_URL || 'mongodb://mongodb1:27017,mongodb2:27018,mongodb3:27019/?replicaSet=my-replica-set'
+const client = new MongoClient(url)
 
 async function connect() {
   await client.connect()

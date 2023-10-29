@@ -15,7 +15,7 @@ async function createCategory(req: Category) {
     }
     const doc: Category = {
       id: req.id,
-      '@type': 'category',
+      '@type': 'Category',
       href: `/category/${req.id}`,
       lastUpdate: req.lastUpdate,
       name: req.name,
