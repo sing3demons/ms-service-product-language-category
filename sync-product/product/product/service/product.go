@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sing3demons/product.product.sync/product/producer"
+	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/product/product/model"
 	"github.com/sing3demons/product.product.sync/product/product/repository"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,8 +33,8 @@ func (s *ProductService) CreateProduct(req model.Products) error {
 		Category:           req.Category,
 		SupportingLanguage: req.SupportingLanguage,
 	}
-	servers := "localhost:9092"
-	produce := producer.NewProducer(servers)
+	// servers := "localhost:9092"
+	produce := producer.NewProducer()
 	if err := produce.SendMessage("product.createProduct", "", document); err != nil {
 		return err
 	}

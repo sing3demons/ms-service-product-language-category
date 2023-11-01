@@ -2,8 +2,9 @@ package producer
 
 import (
 	"encoding/json"
+	"os"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 type Producer struct {
@@ -11,7 +12,11 @@ type Producer struct {
 	prod    *kafka.Producer
 }
 
-func NewProducer(servers string) *Producer {
+func NewProducer() *Producer {
+	servers := os.Getenv("KAFKA_SERVERS")
+	if servers == "" {
+		servers = "localhost:9092"
+	}
 	return &Producer{
 		servers: servers,
 	}

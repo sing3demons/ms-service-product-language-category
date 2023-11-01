@@ -6,7 +6,7 @@ import (
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
 	"github.com/sing3demons/product.product.sync/category/category/repository"
-	"github.com/sing3demons/product.product.sync/category/producer"
+	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -36,7 +36,7 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 		Products:   req.Products,
 	}
 	// servers := "localhost:9092"
-	produce := producer.NewProducer("localhost:9092")
+	produce := producer.NewProducer()
 	if err := produce.SendMessage("category.createCategory", "", document); err != nil {
 		return err
 	}

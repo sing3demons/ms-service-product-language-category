@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/productLanguage/language/model"
 	"github.com/sing3demons/product.product.sync/productLanguage/language/repository"
-	"github.com/sing3demons/product.product.sync/productLanguage/producer"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -34,7 +34,7 @@ func (s *ProductLanguageService) CreateProductLanguage(req model.ProductLanguage
 		Attachment:   req.Attachment,
 	}
 	// servers := "localhost:9092"
-	produce := producer.NewProducer("localhost:9092")
+	produce := producer.NewProducer()
 	if err := produce.SendMessage("productLanguage.createProductLanguage", "", document); err != nil {
 		return err
 	}

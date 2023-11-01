@@ -1,18 +1,15 @@
-FROM golang:1.21.1-alpine3.18 as builder
+FROM golang:1.21.1 as builder
+WORKDIR /usr/src/app
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 
-RUN apk add git
-
-COPY . /home/src
-
-WORKDIR /home/src
-
-RUN GOOS=linux GOARCH=amd64 go build -o main main.go
-
-RUN chmod +x main
-
-FROM alpine:3.14.2
-WORKDIR /app
-COPY --from=builder /home/src/main /app/
+COPY . .
+RUN go build -v -o /usr/local/bin/main main.go
+# CMD [ "app" ]
+FROM alpine:3.18
+RUN apk --no-cache add ca-certificates
+WORKDIR /bin
+COPY --from=builder /usr/local/bin/main /bin
+RUN chmod +x /bin/main
 EXPOSE 2566
-
-CMD [ "/app/main" ]
+CMD ["/main"]
