@@ -1,14 +1,15 @@
 package model
 
 type Category struct {
-	Type       string    `json:"@type,omitempty" validate:"required" bson:"@type,omitempty"`
-	ID         string    `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
-	Href       string    `json:"href,omitempty" bson:"href,omitempty"`
-	Name       string    `json:"name,omitempty" bson:"name,omitempty"`
-	Version    string    `json:"version,omitempty" bson:"version,omitempty"`
-	LastUpdate string    `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
-	ValidFor   *ValidFor `json:"validFor,omitempty" bson:"validFor,omitempty"`
-	Products   []Product `json:"products,omitempty" bson:"product,omitempty"`
+	Type            string    `json:"@type,omitempty" validate:"required" bson:"@type,omitempty"`
+	ID              string    `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
+	Href            string    `json:"href,omitempty" bson:"href,omitempty"`
+	Name            string    `json:"name,omitempty" bson:"name,omitempty"`
+	Version         string    `json:"version,omitempty" bson:"version,omitempty"`
+	LastUpdate      string    `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
+	LifecycleStatus string    `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
+	ValidFor        *ValidFor `json:"validFor,omitempty" bson:"validFor,omitempty"`
+	Products        []Product `json:"products,omitempty" bson:"product,omitempty"`
 }
 
 type ValidFor struct {

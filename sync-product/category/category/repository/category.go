@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
+	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -63,9 +64,32 @@ func (r *CategoryRepository) FindAllCategory(filter bson.M) ([]model.Category, e
 	}
 
 	var categories []model.Category
-	if err := cursor.All(ctx, &categories); err != nil {
-		return nil, err
-	}
+	// if err := cursor.All(ctx, &categories); err != nil {
+	// 	return nil, err
+	// }
 
+	for cursor.Next(ctx) {
+		var category model.Category
+		if err := cursor.Decode(&category); err != nil {
+			return nil, err
+		}
+
+		validFor := &model.ValidFor{
+			StartDateTime: utils.ConvertTimeBangkok(category.ValidFor.StartDateTime),
+			EndDateTime:   utils.ConvertTimeBangkok(category.ValidFor.EndDateTime),
+		}
+
+		categories = append(categories, model.Category{
+			Type:            category.Type,
+			ID:              category.ID,
+			Href:            utils.Href("/category/%s", category.ID),
+			Name:            category.Name,
+			Version:         category.Version,
+			LastUpdate:      utils.ConvertTimeBangkok(category.LastUpdate),
+			ValidFor:        validFor,
+			Products:        category.Products,
+			LifecycleStatus: category.LifecycleStatus,
+		})
+	}
 	return categories, nil
 }
