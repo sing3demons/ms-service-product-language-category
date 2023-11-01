@@ -15,7 +15,6 @@ async function createProduct(req: Product) {
             id: item.id,
             name: item?.name,
             '@type': 'Category',
-            href: `/category/${item.id}`,
           })
         }
       }
