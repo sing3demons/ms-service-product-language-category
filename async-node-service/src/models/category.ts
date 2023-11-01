@@ -2,10 +2,9 @@ import { ValidFor } from './index.js'
 import { Product } from './product.js'
 
 export interface Category {
-  '@type'?: string
+  '@type': string
   id: string
-  href?: string
-  name?: string
+  name: string
   version?: string
   lastUpdate?: string
   validFor?: ValidFor
