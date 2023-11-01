@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/category/category/model"
 	"github.com/sing3demons/product.product.sync/category/category/service"
+	"github.com/sing3demons/product.product.sync/common/constants"
 )
 
 type Category struct {
@@ -21,6 +22,11 @@ func (h *Category) CreateCategory(c *gin.Context) {
 	var req model.Category
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.LifecycleStatus != constants.Active && req.LifecycleStatus != constants.Inactive {
+		c.JSON(400, gin.H{"error": "lifecycleStatus is invalid"})
 		return
 	}
 
@@ -65,8 +71,15 @@ func (h *Category) FindAllCategory(c *gin.Context) {
 		}
 		query.Limit = size
 	}
+	expand := c.Query("expand")
+	if expand != "" {
+		query.Expand = expand
+	}
 
-	query.LifecycleStatus = c.Query("lifecycleStatus")
+	lifecycleStatus := c.Query("lifecycleStatus")
+	if lifecycleStatus != "" {
+		query.LifecycleStatus = lifecycleStatus
+	}
 	category, err := h.service.FindAllCategory(query)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

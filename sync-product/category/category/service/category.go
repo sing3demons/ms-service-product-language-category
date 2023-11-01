@@ -63,23 +63,26 @@ func (s *CategoryService) FindCategory(id string) (*model.Category, error) {
 }
 
 func (s *CategoryService) FindAllCategory(query model.Query) ([]model.Category, error) {
-	fmt.Print(query)
-	filter := bson.M{}
+	filter := bson.D{}
 
 	if query.Name != "" {
-		filter["name"] = query.Name
+		filter = append(filter, bson.E{Key: "name", Value: query.Name})
 	}
 
 	if query.ID != "" {
-		filter["id"] = query.ID
+		filter = append(filter, bson.E{Key: "id", Value: query.ID})
 	}
 
 	if query.Limit != 0 {
-		filter["limit"] = query.Limit
+		filter = append(filter, bson.E{Key: "limit", Value: query.Limit})
 	}
 
 	if query.LifecycleStatus != "" {
-		filter["lifecycleStatus"] = query.LifecycleStatus
+		filter = append(filter, bson.E{Key: "lifecycleStatus", Value: query.LifecycleStatus})
+	}
+
+	if query.Expand != "" {
+		filter = append(filter, bson.E{Key: "expand", Value: query.Expand})
 	}
 
 	category, err := s.repo.FindAllCategory(filter)

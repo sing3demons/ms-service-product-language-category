@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
@@ -55,9 +57,38 @@ func (r *CategoryRepository) FindCategoryById(_id primitive.ObjectID) (*model.Ca
 
 	return &category, nil
 }
-func (r *CategoryRepository) FindAllCategory(filter bson.M) ([]model.Category, error) {
+func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	filter := bson.D{}
+	for _, v := range doc {
+		if v.Key == "name" {
+			names := strings.Split(fmt.Sprintf("%s", v.Value), ",")
+
+			var filterOr bson.A
+			for _, name := range names {
+				fmt.Println("+++++ name +++++++++")
+				fmt.Println(name)
+				filterOr = append(filterOr, bson.D{{Key: "name", Value: name}})
+			}
+			// filter = bson.D{{Key: "$or", Value: filterOr}}
+			filter = append(filter, bson.E{Key: "$or", Value: filterOr})
+		}
+		if v.Key == "lifecycleStatus" {
+			// lifecycleStatus=Active
+			lifecycleStatus := fmt.Sprintf("%s", v.Value)
+			if lifecycleStatus != "" {
+				// filter = bson.D{{Key: "lifecycleStatus", Value: lifecycleStatus}}
+				filter = append(filter, bson.E{Key: "lifecycleStatus", Value: lifecycleStatus})
+			}
+
+		}
+	}
+
+	fmt.Println("+++++ filter +++++++++")
+	fmt.Println(filter)
+
 	cursor, err := r.db.Find(ctx, filter)
 	if err != nil {
 		return nil, err
