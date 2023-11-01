@@ -1,8 +1,8 @@
-POST http://localhost:8080/category HTTP/1.1
+POST http://localhost:2566/category HTTP/1.1
 
 {
   "id": "Zr9HD1erKpr",
-  "name": "Category",
+  "name": "cpu",
   "version": "1.0",
   "lastUpdate": "2023-10-22",
   "validFor": {
@@ -12,4 +12,32 @@ POST http://localhost:8080/category HTTP/1.1
 }
 
 ###
-GET http://localhost:8080/category HTTP/1.1
+POST http://localhost:2566/category HTTP/1.1
+
+{
+  "id": "LOw7TrRqMRX",
+  "name": "gpu",
+  "version": "1.0",
+  "lastUpdate": "2023-10-22",
+  "validFor": {
+    "startDateTime": "2023-10-22T08:00:00Z",
+    "endDateTime": "2029-10-23T08:00:00Z"
+  }
+}
+
+###
+POST http://localhost:2566/category HTTP/1.1
+
+{
+  "id": "hdTrp4oXG7e",
+  "name": "ram",
+  "version": "1.0",
+  "lastUpdate": "2023-10-22",
+  "validFor": {
+    "startDateTime": "2023-10-22T08:00:00Z",
+    "endDateTime": "2029-10-23T08:00:00Z"
+  }
+}
+
+###
+GET http://localhost:2566/category HTTP/1.1
