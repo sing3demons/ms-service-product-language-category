@@ -95,17 +95,21 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 			for _, name := range names {
 				filterOr = append(filterOr, bson.D{{Key: "name", Value: name}})
 			}
-			// filter = bson.D{{Key: "$or", Value: filterOr}}
 			filter = append(filter, bson.E{Key: "$or", Value: filterOr})
 		}
 		if v.Key == "lifecycleStatus" {
-			// lifecycleStatus=Active
 			lifecycleStatus := fmt.Sprintf("%s", v.Value)
 			if lifecycleStatus != "" {
-				// filter = bson.D{{Key: "lifecycleStatus", Value: lifecycleStatus}}
 				filter = append(filter, bson.E{Key: "lifecycleStatus", Value: lifecycleStatus})
 			}
 
+		}
+
+		if v.Key == "expand" {
+			expand := fmt.Sprintf("%s", v.Value)
+			if expand != "" {
+				filter = append(filter, bson.E{Key: "expand", Value: expand})
+			}
 		}
 	}
 
@@ -127,6 +131,19 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 			EndDateTime:   utils.ConvertTimeBangkok(category.ValidFor.EndDateTime),
 		}
 
+		var products []model.ProductRef
+		if category.Products != nil {
+			for _, v := range category.Products {
+				products = append(products, model.ProductRef{
+					Type:    "Product",
+					ID:      v.ID,
+					Href:    utils.Href("Product", v.ID),
+					Name:    v.Name,
+					Version: v.Version,
+				})
+			}
+		}
+
 		categories = append(categories, model.Category{
 			Type:            category.Type,
 			ID:              category.ID,
@@ -135,7 +152,7 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 			Version:         category.Version,
 			LastUpdate:      utils.ConvertTimeBangkok(category.LastUpdate),
 			ValidFor:        validFor,
-			Products:        category.Products,
+			Products:        products,
 			LifecycleStatus: category.LifecycleStatus,
 		})
 	}

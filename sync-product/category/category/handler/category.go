@@ -87,3 +87,27 @@ func (h *Category) FindAllCategory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, category)
 }
+
+func (h *Category) UpdateCategory(c *gin.Context) {
+	var req model.UpdateCategory
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	id := c.Param("id")
+
+	if req.LifecycleStatus != "" {
+		if req.LifecycleStatus != constants.Active && req.LifecycleStatus != constants.Inactive {
+			c.JSON(400, gin.H{"error": "lifecycleStatus is invalid"})
+			return
+		}
+	}
+
+	if err := h.service.UpdateCategory(id, req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "success"})
+}

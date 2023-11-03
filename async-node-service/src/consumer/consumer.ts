@@ -73,7 +73,6 @@ import { Product } from '../models/product.js'
 
 async function consumeMessage(consumer: Consumer) {
   try {
-    console.log('consumer message++++>')
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
         console.log({
@@ -83,7 +82,6 @@ async function consumeMessage(consumer: Consumer) {
           value: message?.value?.toString(),
         })
         try {
-          console.log('consumer : run => ', topic)
           switch (topic) {
             case TOPIC.createCategory:
               if (message.value) {

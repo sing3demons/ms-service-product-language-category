@@ -27,4 +27,14 @@ async function findProductId(_id: ObjectId | string) {
   }
 }
 
-export { insertOneProduct, findProductId }
+async function findProductByIds(ids: string[]) {
+  console.log(`findProductByIds ${ids}`)
+  try {
+    const results = await col.find({ id: { $in: ids } }).toArray()
+    return results
+  } catch (error) {
+    throw error
+  }
+}
+
+export { insertOneProduct, findProductId, findProductByIds }

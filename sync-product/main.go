@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -108,6 +106,7 @@ func main() {
 		r.GET("/category", handler.FindAllCategory)
 		r.GET("/category/:id", handler.FindCategory)
 		r.POST("/category", handler.CreateCategory)
+		r.PATCH("/category/:id", handler.UpdateCategory)
 	}
 	RunServer(":2566", "sync-product-service", r)
 }
@@ -140,52 +139,4 @@ func RunServer(addr, serviceName string, router http.Handler) {
 	}
 
 	fmt.Println("server exited")
-}
-
-func httpGET(url string) ([]byte, error) {
-	httpReq, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpClient := &http.Client{
-		Timeout: time.Second * 90,
-	}
-	resp, err := httpClient.Do(httpReq)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
-}
-
-func httpPost(payload []byte) ([]byte, error) {
-
-	httpReq, err := http.NewRequest(http.MethodPost, "http://localhost:2566/products", bytes.NewBuffer(payload))
-	if err != nil {
-		return nil, err
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpClient := &http.Client{
-		Timeout: time.Second * 90,
-	}
-	resp, err := httpClient.Do(httpReq)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	fmt.Println(resp.Status)
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
 }

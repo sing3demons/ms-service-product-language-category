@@ -11,7 +11,7 @@ type Category struct {
 	LastUpdate      string        `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
 	LifecycleStatus common.Status `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
 	ValidFor        *ValidFor     `json:"validFor,omitempty" bson:"validFor,omitempty"`
-	Products        []ProductRef     `json:"products,omitempty" bson:"product,omitempty"`
+	Products        []ProductRef     `json:"products,omitempty" bson:"products,omitempty"`
 }
 
 type UpdateCategory struct {
@@ -20,7 +20,7 @@ type UpdateCategory struct {
 	Version         string        `json:"version,omitempty" bson:"version,omitempty"`
 	LastUpdate      string        `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
 	LifecycleStatus common.Status `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
-	Products        []ProductRef     `json:"products,omitempty" bson:"product,omitempty"`
+	Products        []ProductRef     `json:"products,omitempty" bson:"products,omitempty"`
 }
 
 type ValidFor struct {

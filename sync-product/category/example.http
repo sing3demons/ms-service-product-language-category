@@ -47,3 +47,16 @@ GET http://localhost:2566/category HTTP/1.1
 
 ###
 GET http://localhost:2566/category?name=cpu,gpu,ram&lifecycleStatus=active HTTP/1.1
+
+###
+PATCH  http://localhost:2566/category/bmPpsc7Kruw HTTP/1.1
+
+{
+  "id": "bmPpsc7Kruw",
+  "products": [
+    {
+      "id": "dSZOv9EZJkr",
+      "name": "Product s1"
+    }
+  ]
+}

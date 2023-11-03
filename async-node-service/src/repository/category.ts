@@ -26,7 +26,7 @@ async function findCategoryId(_id: ObjectId) {
 
 async function findOneCategory(id: string) {
   try {
-    const result: WithId<Category> | null = await col.findOne({ id })
+    const result: WithId<Category> | null = await col.findOne({ id: id })
     return result as Category
   } catch (e) {
     throw e
@@ -44,6 +44,8 @@ async function updateCategory(id: string, req: Category) {
 
 async function updateProduct(id: string, products: Product[]) {
   try {
+    console.log('=================')
+    console.log(products)
     const result = await col.updateOne({ id }, { $set: { products } }, { upsert: true })
     return result
   } catch (e) {

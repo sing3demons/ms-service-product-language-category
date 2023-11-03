@@ -47,27 +47,25 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 }
 
 func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) error {
-	category, err := s.repo.FindCategory(id)
-	if err != nil {
-		return err
-	}
 	document := model.UpdateCategory{}
+
+	if req.ID == id {
+		document.ID = req.ID
+	}
 	if req.Name != "" {
 		document.Name = req.Name
-	} else {
-		document.Name = category.Name
+	}
+
+	if req.LastUpdate != "" {
+		document.LastUpdate = utils.ConvertTimeBangkok(req.LastUpdate)
 	}
 
 	if req.Version != "" {
 		document.Version = req.Version
-	} else {
-		document.Version = category.Version
 	}
 
 	if req.LifecycleStatus != "" {
 		document.LifecycleStatus = req.LifecycleStatus
-	} else {
-		document.LifecycleStatus = category.LifecycleStatus
 	}
 
 	if req.Products != nil {
