@@ -15,8 +15,8 @@ POST http://localhost:2566/products HTTP/1.1
     ],
     "category": [
         {
-            "id": "TOVeD4oliKS",
-            "name": "Category"
+            "id": "bmPpsc7Kruw",
+            "name": "cpu"
         }
     ]
 }

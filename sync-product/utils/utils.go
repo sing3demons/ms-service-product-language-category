@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -15,7 +16,7 @@ func getHost() string {
 }
 
 func Href(key, value string) string {
-	return fmt.Sprintf("%s/%s/%s", getHost(), key, value)
+	return fmt.Sprintf("%s/%s/%s", getHost(), strings.ToLower(key), value)
 }
 
 func ConvertTimeBangkok(dataTime string) string {

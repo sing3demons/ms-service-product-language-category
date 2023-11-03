@@ -61,6 +61,8 @@ type Query struct {
 	Depth           uint   `json:"depth" bson:"depth,omitempty"`
 	Expand          string `json:"expand" bson:"expand,omitempty"`
 	LifecycleStatus string `json:"lifecycleStatus" bson:"lifecycleStatus,omitempty"`
+	Category        string `bson:"category,omitempty"`
+	ProductLanguage string `bson:"productLanguage,omitempty"`
 }
 
 type Category struct {

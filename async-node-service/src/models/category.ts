@@ -7,6 +7,7 @@ export interface Category {
   name: string
   version?: string
   lastUpdate?: string
+  lifecycleStatus?: string
   validFor?: ValidFor
   products?: Product[]
 }

@@ -30,7 +30,6 @@ func (h *Category) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	// category, err := h.service.CreateCategory(req)
 	if err := h.service.CreateCategory(req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

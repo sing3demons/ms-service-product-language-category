@@ -35,13 +35,38 @@ func (r *CategoryRepository) CreateCategory(document model.Category) (primitive.
 func (r *CategoryRepository) FindCategory(id string) (*model.Category, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	var category model.Category
+	category := model.Category{}
 	filter := bson.M{"id": id}
 	err := r.db.FindOne(ctx, filter).Decode(&category)
 	if err != nil {
 		return nil, err
 	}
 
+	if category.LastUpdate != "" {
+		category.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+	}
+
+	if category.ValidFor.StartDateTime != "" {
+		category.ValidFor.StartDateTime = utils.ConvertTimeBangkok(category.ValidFor.StartDateTime)
+	}
+	if category.ValidFor.EndDateTime != "" {
+		category.ValidFor.EndDateTime = utils.ConvertTimeBangkok(category.ValidFor.EndDateTime)
+	}
+
+	if category.Products != nil {
+		var products []model.ProductRef
+		for _, v := range category.Products {
+			products = append(products, model.ProductRef{
+				ID:         v.ID,
+				Href:       utils.Href(v.Type, v.ID),
+				Type:       v.Type,
+				Name:       v.Name,
+				Version:    v.Version,
+				LastUpdate: utils.ConvertTimeBangkok(v.LastUpdate),
+			})
+		}
+		category.Products = products
+	}
 	return &category, nil
 }
 
@@ -68,8 +93,6 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 
 			var filterOr bson.A
 			for _, name := range names {
-				fmt.Println("+++++ name +++++++++")
-				fmt.Println(name)
 				filterOr = append(filterOr, bson.D{{Key: "name", Value: name}})
 			}
 			// filter = bson.D{{Key: "$or", Value: filterOr}}
@@ -86,18 +109,12 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 		}
 	}
 
-	fmt.Println("+++++ filter +++++++++")
-	fmt.Println(filter)
-
 	cursor, err := r.db.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var categories []model.Category
-	// if err := cursor.All(ctx, &categories); err != nil {
-	// 	return nil, err
-	// }
+	categories := []model.Category{}
 
 	for cursor.Next(ctx) {
 		var category model.Category
@@ -113,7 +130,7 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 		categories = append(categories, model.Category{
 			Type:            category.Type,
 			ID:              category.ID,
-			Href:            utils.Href("/category/%s", category.ID),
+			Href:            utils.Href(category.Type, category.ID),
 			Name:            category.Name,
 			Version:         category.Version,
 			LastUpdate:      utils.ConvertTimeBangkok(category.LastUpdate),

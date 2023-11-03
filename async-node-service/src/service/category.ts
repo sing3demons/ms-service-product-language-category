@@ -17,6 +17,7 @@ async function createCategory(req: Category) {
       id: req.id,
       '@type': 'Category',
       lastUpdate: req.lastUpdate,
+      lifecycleStatus: req.lifecycleStatus,
       name: req.name,
       products: req.products || [],
       version: req.version,

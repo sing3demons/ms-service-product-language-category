@@ -54,22 +54,32 @@ func (s *ProductService) FindProduct(id string) (*model.Products, error) {
 
 func (s *ProductService) FindAllProducts(query model.Query) (*model.ResponseDataWithTOtal, error) {
 	fmt.Print(query)
-	filter := bson.M{}
+	filter := bson.D{}
 
 	if query.Name != "" {
-		filter["name"] = query.Name
+		filter = append(filter, bson.E{Key: "name", Value: query.Name})
 	}
 
 	if query.ID != "" {
-		filter["id"] = query.ID
+		filter = append(filter, bson.E{Key: "id", Value: query.ID})
 	}
 
 	if query.Limit != 0 {
-		filter["limit"] = query.Limit
+		filter = append(filter, bson.E{Key: "limit", Value: query.Limit})
 	}
 
 	if query.LifecycleStatus != "" {
-		filter["lifecycleStatus"] = query.LifecycleStatus
+		filter = append(filter, bson.E{Key: "lifecycleStatus", Value: query.LifecycleStatus})
+	}
+
+	if query.Expand != "" {
+		filter = append(filter, bson.E{Key: "expand", Value: query.Expand})
+	}
+	if query.Category == "product.Category" {
+		filter = append(filter, bson.E{Key: "category", Value: query.Category})
+	}
+	if query.ProductLanguage == "product.productLanguage" {
+		filter = append(filter, bson.E{Key: "productLanguage", Value: query.ProductLanguage})
 	}
 
 	products, err := s.repo.FindAllProduct(filter)

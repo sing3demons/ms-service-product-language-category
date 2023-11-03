@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/sing3demons/product.product.sync/product/product/model"
@@ -54,9 +56,30 @@ func (r *ProductRepository) FindProductById(_id primitive.ObjectID) (*model.Prod
 
 	return &product, nil
 }
-func (r *ProductRepository) FindAllProduct(filter bson.M) ([]model.Products, error) {
+func (r *ProductRepository) FindAllProduct(doc bson.D) ([]model.Products, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	filter := bson.D{}
+	for _, v := range doc {
+		if v.Key == "name" {
+			names := strings.Split(fmt.Sprintf("%s", v.Value), ",")
+
+			var filterOr bson.A
+			for _, name := range names {
+				filterOr = append(filterOr, bson.D{{Key: "name", Value: name}})
+			}
+			filter = append(filter, bson.E{Key: "$or", Value: filterOr})
+		}
+		if v.Key == "lifecycleStatus" {
+			lifecycleStatus := fmt.Sprintf("%s", v.Value)
+			if lifecycleStatus != "" {
+				filter = append(filter, bson.E{Key: "lifecycleStatus", Value: lifecycleStatus})
+			}
+
+		}
+	}
+
 	cursor, err := r.db.Find(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -77,9 +100,28 @@ func (r *ProductRepository) FindAllProduct(filter bson.M) ([]model.Products, err
 	return products, nil
 }
 
-func (r *ProductRepository) GetTotalProduct(filter bson.M, ch chan int64) error {
+func (r *ProductRepository) GetTotalProduct(doc bson.D, ch chan int64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	filter := bson.D{}
+	for _, v := range doc {
+		if v.Key == "name" {
+			names := strings.Split(fmt.Sprintf("%s", v.Value), ",")
+
+			var filterOr bson.A
+			for _, name := range names {
+				filterOr = append(filterOr, bson.D{{Key: "name", Value: name}})
+			}
+			filter = append(filter, bson.E{Key: "$or", Value: filterOr})
+		}
+		if v.Key == "lifecycleStatus" {
+			lifecycleStatus := fmt.Sprintf("%s", v.Value)
+			if lifecycleStatus != "" {
+				filter = append(filter, bson.E{Key: "lifecycleStatus", Value: lifecycleStatus})
+			}
+
+		}
+	}
 	count, err := r.db.CountDocuments(ctx, filter)
 	if err != nil {
 		return err

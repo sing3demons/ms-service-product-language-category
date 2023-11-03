@@ -27,28 +27,88 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 	}
 	loc, _ := time.LoadLocation("Asia/Bangkok")
 	document := model.Category{
-		Type:       "Category",
-		ID:         req.ID,
-		Name:       req.Name,
-		Version:    req.Version,
-		LastUpdate: time.Now().In(loc).Format("2006-01-02T15:04:05Z07:00"),
-		ValidFor:   req.ValidFor,
-		Products:   req.Products,
+		Type:            "Category",
+		ID:              req.ID,
+		Name:            req.Name,
+		Version:         req.Version,
+		LastUpdate:      time.Now().In(loc).Format("2006-01-02T15:04:05Z07:00"),
+		ValidFor:        req.ValidFor,
+		Products:        req.Products,
+		LifecycleStatus: req.LifecycleStatus,
 	}
+
 	// servers := "localhost:9092"
 	produce := producer.NewProducer()
 	if err := produce.SendMessage("category.createCategory", "", document); err != nil {
 		return err
 	}
 
-	// id, err := s.repo.CreateCategory(document)
-	// if err != nil {
-	// 	return model.Category{}, err
-	// }
-	// category, err := s.repo.FindCategoryById(id)
-	// if err != nil {
-	// 	return model.Category{}, err
-	// }
+	return nil
+}
+
+func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) error {
+	category, err := s.repo.FindCategory(id)
+	if err != nil {
+		return err
+	}
+	document := model.UpdateCategory{}
+	if req.Name != "" {
+		document.Name = req.Name
+	} else {
+		document.Name = category.Name
+	}
+
+	if req.Version != "" {
+		document.Version = req.Version
+	} else {
+		document.Version = category.Version
+	}
+
+	if req.LifecycleStatus != "" {
+		document.LifecycleStatus = req.LifecycleStatus
+	} else {
+		document.LifecycleStatus = category.LifecycleStatus
+	}
+
+	if req.Products != nil {
+		productsReq := req.Products
+		var products []model.ProductRef
+		for _, v := range productsReq {
+			var product model.ProductRef
+			product.ID = v.ID
+			if v.Name != "" {
+				product.Name = v.Name
+			}
+			if v.Version != "" {
+				product.Version = v.Version
+			}
+			if v.LastUpdate != "" {
+				product.LastUpdate = utils.ConvertTimeBangkok(v.LastUpdate)
+			}
+			product.Type = "Product"
+
+			products = append(products, product)
+		}
+		document.Products = products
+	}
+
+	// servers := "localhost:9092"
+	produce := producer.NewProducer()
+	if err := produce.SendMessage("category.updateCategory", "", document); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *CategoryService) DeleteCategory(id string, req model.UpdateCategory) error {
+	document := model.UpdateCategory{}
+
+	// servers := "localhost:9092"
+	produce := producer.NewProducer()
+	if err := produce.SendMessage("category.deleteCategory", "", document); err != nil {
+		return err
+	}
 
 	return nil
 }
