@@ -69,13 +69,14 @@ async function updateCategory(req: Category) {
                   productMap.delete(product.id)
                 }
                 const update = { id: product.id, name: product?.name }
+                productMap.set(product.id, update)
                 logger.info('for update', update.id, update.name)
                 products.push(update)
               }
             }
 
             console.log('====== category.products ===========')
-            const data = await updateProduct(req.id, products)
+            const data = await updateProduct(req.id, [...productMap.values()])
             return data
           }
         } else {
