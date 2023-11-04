@@ -1,11 +1,14 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
 	"github.com/sing3demons/product.product.sync/category/category/repository"
+	"github.com/sing3demons/product.product.sync/common"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/utils"
@@ -140,14 +143,143 @@ func (s *CategoryService) FindAllCategory(query model.Query) ([]dto.Category, er
 		filter = append(filter, bson.E{Key: "lifecycleStatus", Value: query.LifecycleStatus})
 	}
 
-	if query.Expand != "" {
-		filter = append(filter, bson.E{Key: "expand", Value: query.Expand})
-	}
-
-	category, err := s.repo.FindAllCategory(filter)
+	categories, err := s.repo.FindAllCategory(filter)
 	if err != nil {
 		return nil, err
 	}
 
-	return category, nil
+	var categoryProducts bool
+	if query.Expand != "" {
+		expand := strings.Split(query.Expand, ",")
+		for i := 0; i < len(expand); i++ {
+			if expand[i] == "category.products" {
+				categoryProducts = true
+			}
+		}
+	}
+
+	result := []dto.Category{}
+
+	if categories != nil {
+		var products []dto.Products
+		for i := 0; i < len(categories); i++ {
+			category := categories[i]
+			validFor := &dto.ValidFor{
+				StartDateTime: utils.ConvertTimeBangkok(category.ValidFor.StartDateTime),
+				EndDateTime:   utils.ConvertTimeBangkok(category.ValidFor.EndDateTime),
+			}
+			if category.Products != nil {
+				if categoryProducts {
+					for _, v := range category.Products {
+						b, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
+						if err != nil {
+							fmt.Println("error call product")
+							fmt.Println(err)
+						}
+						var product dto.Products
+						if err := json.Unmarshal(b, &product); err != nil {
+							fmt.Println("error Unmarshal")
+							fmt.Println(err)
+						}
+						var validFor *dto.ValidFor
+						if product.ValidFor != nil {
+							validFor = &dto.ValidFor{
+								StartDateTime: utils.ConvertTimeBangkok(product.ValidFor.StartDateTime),
+								EndDateTime:   utils.ConvertTimeBangkok(product.ValidFor.EndDateTime),
+							}
+						}
+
+						if product.LastUpdate != "" {
+							product.LastUpdate = utils.ConvertTimeBangkok(product.LastUpdate)
+						} else {
+							product.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+						}
+
+						productRef := dto.Products{
+							Type:            product.Type,
+							ID:              product.ID,
+							Href:            utils.Href(product.Type, product.ID),
+							Name:            product.Name,
+							Version:         product.Version,
+							LastUpdate:      product.LastUpdate,
+							ValidFor:        validFor,
+							LifecycleStatus: product.LifecycleStatus,
+						}
+
+						if product.Category != nil {
+							for _, v := range product.Category {
+								if v.LastUpdate != "" {
+									v.LastUpdate = utils.ConvertTimeBangkok(v.LastUpdate)
+								}
+								v.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+								fmt.Printf("=== %v-->\n", v.LastUpdate)
+
+							}
+						}
+
+						if product.Category != nil {
+							for _, v := range product.Category {
+								if v.LastUpdate == "" {
+									v.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+								}
+								productRef.Category = append(productRef.Category, dto.Category{
+									Type:            v.Type,
+									ID:              v.ID,
+									Href:            utils.Href(v.Type, v.ID),
+									Name:            v.Name,
+									Version:         v.Version,
+									LastUpdate:      utils.ConvertTimeBangkok(v.LastUpdate),
+									ValidFor:        validFor,
+									LifecycleStatus: v.LifecycleStatus,
+								})
+							}
+						}
+
+						products = append(products, productRef)
+
+					}
+				} else {
+					for _, v := range category.Products {
+						b, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
+						if err != nil {
+							fmt.Println("error call product")
+							fmt.Println(err)
+						}
+						var product = new(dto.Products)
+						if err := json.Unmarshal(b, &product); err != nil {
+							fmt.Println("error Unmarshal")
+							fmt.Println(err)
+						}
+						if product != nil {
+							products = append(products, dto.Products{
+								Type:    "Product",
+								ID:      v.ID,
+								Href:    utils.Href("Product", v.ID),
+								Name:    v.Name,
+								Version: v.Version,
+							})
+						} else {
+							products = append(products, dto.Products{
+								ID:   v.ID,
+								Name: v.Name,
+							})
+						}
+					}
+				}
+			}
+			result = append(result, dto.Category{
+				Type:            category.Type,
+				ID:              category.ID,
+				Href:            utils.Href(category.Type, category.ID),
+				Name:            category.Name,
+				Version:         category.Version,
+				LastUpdate:      utils.ConvertTimeBangkok(category.LastUpdate),
+				ValidFor:        validFor,
+				Products:        products,
+				LifecycleStatus: category.LifecycleStatus,
+			})
+		}
+	}
+
+	return result, nil
 }
