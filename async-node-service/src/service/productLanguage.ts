@@ -14,15 +14,14 @@ async function createProductLanguage(req: ProductLanguage) {
         const data: Attachment = {
           '@type': 'AttachmentType',
           id: attachment.id,
-          href: `/attachment/${attachment.id}`,
-          attachmentType: attachment?.attachmentType,
-          description: attachment?.description,
-          mimeType: attachment?.mimeType,
-          name: attachment?.name,
-          url: attachment?.url,
-          validFor: attachment?.validFor,
-          redirectUrl: attachment?.redirectUrl,
-          displayInfo: attachment?.displayInfo,
+          attachmentType: attachment?.attachmentType || undefined,
+          description: attachment?.description || undefined,
+          mimeType: attachment?.mimeType || undefined,
+          name: attachment?.name || undefined,
+          url: attachment?.url || undefined,
+          validFor: attachment?.validFor || undefined,
+          redirectUrl: attachment?.redirectUrl || undefined,
+          displayInfo: attachment?.displayInfo || undefined,
         }
         attachments.push(data)
       }
@@ -39,10 +38,10 @@ async function createProductLanguage(req: ProductLanguage) {
     '@type': 'productLanguage',
     languageCode: req.languageCode,
     attachment: attachments || [],
-    name: req?.name,
-    version: req?.version,
-    lastUpdate: req.lastUpdate,
-    validFor: req?.validFor,
+    name: req?.name || undefined,
+    version: req?.version || undefined,
+    lastUpdate: req.lastUpdate || undefined,
+    validFor: req?.validFor || undefined,
   }
   const result = await insertOneProductLanguage(doc)
   const productLanguage = await findProductLanguageId(result.insertedId)

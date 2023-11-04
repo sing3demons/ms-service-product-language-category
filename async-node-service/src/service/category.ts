@@ -45,13 +45,22 @@ async function updateCategory(req: Category) {
 
     const result = await findOneCategory(req.id)
     if (!!result) {
+      const productMap = new Map()
       logger.info(JSON.stringify(result))
+      if (result.products) {
+        for (let i = 0; i < result.products.length; i++) {
+          const product = result.products[i]
+          if (product?.id) {
+            productMap.set(product.id, product)
+          }
+        }
+      }
       if (req.products) {
         if (Array.isArray(result.products) && result.products.length !== 0) {
           const productIds = await findProductByIds(req.products.map((item) => item.id))
           console.log('====== productIds ===========')
           console.log(JSON.stringify(productIds))
-          const productMap = new Map()
+
           if (productIds.length !== 0) {
             for (let i = 0; i < productIds.length; i++) {
               const product = productIds[i]
@@ -59,26 +68,26 @@ async function updateCategory(req: Category) {
                 productMap.set(product.id, product)
               }
             }
-
-            let products: Product[] = []
-            for (let i = 0; i < req.products.length; i++) {
-              const product = req.products[i]
-              if (product?.id) {
-                if (productMap.has(product.id)) {
-                  logger.info(`has product id ${product.id} ${product.name}`)
-                  productMap.delete(product.id)
-                }
-                const update = { id: product.id, name: product?.name }
-                productMap.set(product.id, update)
-                logger.info('for update', update.id, update.name)
-                products.push(update)
-              }
-            }
-
-            console.log('====== category.products ===========')
-            const data = await updateProduct(req.id, [...productMap.values()])
-            return data
           }
+
+          let products: Product[] = []
+          for (let i = 0; i < req.products.length; i++) {
+            const product = req.products[i]
+            if (product?.id) {
+              if (productMap.has(product.id)) {
+                logger.info(`has product id ${product.id} ${product.name}`)
+                productMap.delete(product.id)
+              }
+              const update = { id: product.id, name: product?.name }
+              productMap.set(product.id, update)
+              logger.info('for update', update.id, update.name)
+              products.push(update)
+            }
+          }
+
+          console.log('====== category.products ===========')
+          const data = await updateProduct(req.id, [...productMap.values()])
+          return data
         } else {
           console.log('====== new category.products ===========')
           console.log(req.products)
@@ -87,6 +96,19 @@ async function updateCategory(req: Category) {
           })
           const data = await updateProduct(req.id, products)
           return data
+        }
+      } else {
+        console.log('====== new category.products ===========')
+        console.log(req.products)
+        if (req.products) {
+          if (Array.isArray(result.products) && result.products.length !== 0) {
+            const products: Product[] = []
+            for (const product of result.products) {
+              products.push({ id: product.id, name: product.name })
+            }
+            const data = await updateProduct(req.id, products)
+            return data
+          }
         }
       }
     }

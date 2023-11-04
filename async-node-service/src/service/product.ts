@@ -27,9 +27,8 @@ async function createProduct(req: Product) {
         if (item?.id) {
           supportingLanguage.push({
             id: item.id,
-            name: item?.name,
+            name: item?.name || undefined,
             '@type': 'ProductLanguage',
-            href: `/productLanguage/${item.id}`,
             languageCode: item.languageCode,
           })
         }
@@ -43,7 +42,6 @@ async function createProduct(req: Product) {
     const doc: Product = {
       id: req.id,
       '@type': 'Product',
-      href: `/products/${req.id}`,
       category: category,
       description: req.description,
       lastUpdate: req.lastUpdate,

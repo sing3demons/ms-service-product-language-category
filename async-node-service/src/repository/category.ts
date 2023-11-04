@@ -46,7 +46,9 @@ async function updateProduct(id: string, products: Product[]) {
   try {
     console.log('=================')
     console.log(products)
-    const result = await col.updateOne({ id }, { $set: { products } }, { upsert: true })
+    const result = await col.findOneAndUpdate({ id }, { $set: { products } }, { upsert: true, returnDocument: 'after' })
+    console.log('=======  result  ==========')
+    console.log(JSON.stringify(result))
     return result
   } catch (e) {
     throw e
