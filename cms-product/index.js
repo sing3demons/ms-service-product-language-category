@@ -1,17 +1,17 @@
 import axios from 'axios'
-import express from 'express'
+// import express from 'express'
 import { customAlphabet } from 'nanoid'
 
 function nanoid() {
-   const _nanoid =  customAlphabet(
+  const _nanoid = customAlphabet(
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
     11
   )
   return _nanoid()
 }
 
-async function createProduct() {
-    const createProductLanguageBody = []
+async function createProducts() {
+  const createProductLanguageBody = []
   const productTh = {
     id: nanoid(),
     languageCode: 'th',
@@ -56,14 +56,120 @@ async function createProduct() {
       },
     ],
   }
-    createProductLanguageBody.push(productEn)
+  createProductLanguageBody.push(productEn)
 
+  const supportLanguage = []
+  supportLanguage.push({
+    languageCode: 'th',
+    id: productTh.id,
+  })
+  supportLanguage.push({
+    languageCode: 'en',
+    id: productEn.id,
+  })
+
+  const categories = await getCategory()
+
+  const nType = []
+  for (const category of categories) {
+    const { id, name } = category
+    nType.push({
+      id,
+      name,
+    })
+  }
+
+  const product = {
+    id: nanoid(),
+    name: 'แมวเหมียว',
+    description: 'แมวเหมียว',
+    lifecycleStatus: 'active',
+    supportingLanguage: supportLanguage,
+    category: nType,
+  }
+
+  if (createProductLanguageBody.length) {
+    let productLanguageReq = []
+    for (const productLanguage of createProductLanguageBody) {
+      productLanguageReq.push(createProductLanguage(productLanguage))
+    }
+    if (productLanguageReq.length) {
+      await Promise.all(productLanguageReq)
+    }
+  }
+  const updateCategoryReq = []
+  const categoryBody = []
+  for (const category of categories) {
+    const { id } = category
+    const updateCategory = {
+      id,
+      product: [
+        {
+          id: product.id,
+          name: product.name,
+        },
+      ],
+    }
+    updateCategoryReq.push(updateCategoryId(id, updateCategory))
+    categoryBody.push(updateCategory)
+  }
+  if (updateCategoryReq.length) {
+    await Promise.all(updateCategoryReq)
+  }
+
+  await createProduct(product)
+  return {
+    productLanguageTh: productTh,
+    productLanguageEn: productEn,
+    product,
+    category: categoryBody,
+  }
+}
+
+async function updateCategoryId(id, body) {
+  try {
+    await axios.patch('http://localhost:2566/category/' + id, body)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function createProductLanguage(body) {
+  try {
+    await axios.post('http://localhost:2566/productLanguage', body)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function createProduct(body) {
+  try {
+    await axios.post('http://localhost:2566/products', body)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function getCategory() {
+  try {
+    const { data } = await axios.get(
+      'http://localhost:2566/category?lifecycleStatus=active'
+    )
+    return data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function createCategory() {
+  try {
     const category = [
       {
         id: nanoid(),
         name: 'cpu',
-        version: '1.0.0',
+        version: '1.0',
         lastUpdate: '2023-10-22',
+        lifecycleStatus: 'active',
         validFor: {
           startDateTime: '2023-10-22T08:00:00Z',
           endDateTime: '2029-10-23T08:00:00Z',
@@ -72,8 +178,9 @@ async function createProduct() {
       {
         id: nanoid(),
         name: 'gpu',
-        version: '1.0.0',
+        version: '1.0',
         lastUpdate: '2023-10-22',
+        lifecycleStatus: 'active',
         validFor: {
           startDateTime: '2023-10-22T08:00:00Z',
           endDateTime: '2029-10-23T08:00:00Z',
@@ -82,8 +189,9 @@ async function createProduct() {
       {
         id: nanoid(),
         name: 'ram',
-        version: '1.0.0',
+        version: '1.0',
         lastUpdate: '2023-10-22',
+        lifecycleStatus: 'active',
         validFor: {
           startDateTime: '2023-10-22T08:00:00Z',
           endDateTime: '2029-10-23T08:00:00Z',
@@ -91,35 +199,28 @@ async function createProduct() {
       },
     ]
 
-  const product = {}
-
-  if (Array.isArray(createProductLanguageBody)&& createProductLanguageBody.length > 0) {
-    // product.productLanguage = createProductLanguageBody
-    let productLanguageReq = []
-    for (const productLanguage of createProductLanguageBody) {
-      productLanguageReq.push(createProductLanguage(productLanguage))
+    const reqBody = []
+    for (const body of category) {
+      reqBody.push(axios.post('http://localhost:2566/category', body))
     }
-    if (productLanguageReq.length){
-        await Promise.all(productLanguageReq)
-    }
-  }
- 
-}
-
-async function createProductLanguage(data) {
-  try {
-    const { data } = axios.post('http://localhost:2566/productLanguage', data)
+    await Promise.all(reqBody)
+    return category
   } catch (error) {
     console.error(error)
   }
 }
 
 async function main() {
-    const id = nanoid()
-    console.log(id)
-//   const app = express()
-//   createProduct()
-//   app.listen(3000, () => console.log('Server running on port 3000'))
+  const category = await getCategory()
+  if (!category) {
+    await createCategory()
+  }
+  const start = performance.now()
+  const data = await createProducts()
+  console.log(JSON.stringify(data))
+  const end = performance.now()
+  const duration = end - start
+  console.log('createProducts', duration.toFixed(2))
 }
 
 main()
