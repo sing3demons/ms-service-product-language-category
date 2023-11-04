@@ -1,26 +1,38 @@
 package model
 
-import "github.com/sing3demons/product.product.sync/common"
+type Status string
 
 type Category struct {
-	Type            string        `json:"@type,omitempty" validate:"required" bson:"@type,omitempty"`
-	ID              string        `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
-	Href            string        `json:"href,omitempty" bson:"href,omitempty"`
-	Name            string        `json:"name,omitempty" bson:"name,omitempty"`
-	Version         string        `json:"version,omitempty" bson:"version,omitempty"`
-	LastUpdate      string        `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
-	LifecycleStatus common.Status `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
-	ValidFor        *ValidFor     `json:"validFor,omitempty" bson:"validFor,omitempty"`
-	Products        []ProductRef     `json:"products,omitempty" bson:"products,omitempty"`
+	Type            string       `json:"@type,omitempty" validate:"required" bson:"@type,omitempty"`
+	ID              string       `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
+	Href            string       `json:"href,omitempty" bson:"href,omitempty"`
+	Name            string       `json:"name,omitempty" bson:"name,omitempty"`
+	Version         string       `json:"version,omitempty" bson:"version,omitempty"`
+	LastUpdate      string       `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
+	LifecycleStatus string       `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
+	ValidFor        *ValidFor    `json:"validFor,omitempty" bson:"validFor,omitempty"`
+	Products        []ProductRef `json:"products,omitempty" bson:"products,omitempty"`
+}
+
+type CategoryProducts struct {
+	Type            string       `json:"@type,omitempty" validate:"required" bson:"@type,omitempty"`
+	ID              string       `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
+	Href            string       `json:"href,omitempty" bson:"href,omitempty"`
+	Name            string       `json:"name,omitempty" bson:"name,omitempty"`
+	Version         string       `json:"version,omitempty" bson:"version,omitempty"`
+	LastUpdate      string       `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
+	LifecycleStatus string       `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
+	ValidFor        *ValidFor    `json:"validFor,omitempty" bson:"validFor,omitempty"`
+	Products        []ProductRef `json:"products,omitempty" bson:"products,omitempty"`
 }
 
 type UpdateCategory struct {
-	ID              string        `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
-	Name            string        `json:"name,omitempty" bson:"name,omitempty"`
-	Version         string        `json:"version,omitempty" bson:"version,omitempty"`
-	LastUpdate      string        `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
-	LifecycleStatus common.Status `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
-	Products        []ProductRef     `json:"products,omitempty" bson:"products,omitempty"`
+	ID              string       `json:"id,omitempty" validate:"required" bson:"id,omitempty"`
+	Name            string       `json:"name,omitempty" bson:"name,omitempty"`
+	Version         string       `json:"version,omitempty" bson:"version,omitempty"`
+	LastUpdate      string       `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
+	LifecycleStatus string       `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
+	Products        []ProductRef `json:"products,omitempty" bson:"products,omitempty"`
 }
 
 type ValidFor struct {

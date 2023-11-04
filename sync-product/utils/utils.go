@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func getHost() string {
+func GetHost() string {
 	host := os.Getenv("HOST")
 	if host == "" {
 		host = "http://localhost:2566"
@@ -16,7 +16,7 @@ func getHost() string {
 }
 
 func Href(key, value string) string {
-	return fmt.Sprintf("%s/%s/%s", getHost(), strings.ToLower(key), value)
+	return fmt.Sprintf("%s/%s/%s", GetHost(), strings.ToLower(key), value)
 }
 
 func ConvertTimeBangkok(dataTime string) string {

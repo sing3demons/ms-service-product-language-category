@@ -6,6 +6,7 @@ import (
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
 	"github.com/sing3demons/product.product.sync/category/category/repository"
+	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/utils"
 
@@ -120,7 +121,7 @@ func (s *CategoryService) FindCategory(id string) (*model.Category, error) {
 	return category, nil
 }
 
-func (s *CategoryService) FindAllCategory(query model.Query) ([]model.Category, error) {
+func (s *CategoryService) FindAllCategory(query model.Query) ([]dto.Category, error) {
 	filter := bson.D{}
 
 	if query.Name != "" {

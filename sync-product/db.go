@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func ConnectMonoDB() (*mongo.Database, error) {
+func ConnectMonoDB() (*mongo.Client, error) {
 	uri := os.Getenv("MONGO_URL")
 	if uri == "" {
 		uri = "mongodb://mongodb1:27017,mongodb2:27018,mongodb3:27019/?replicaSet=my-replica-set"
@@ -32,8 +32,8 @@ func ConnectMonoDB() (*mongo.Database, error) {
 		panic(err)
 	}
 	fmt.Println("Connected to MongoDB!")
-
-	return client.Database("microservice_db"), nil
+	return client, nil
+	// return client.Database("microservice_db"), nil
 
 	// return db.Collection("product"), nil
 }

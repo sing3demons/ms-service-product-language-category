@@ -2,11 +2,14 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
+	"github.com/sing3demons/product.product.sync/common"
+	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -82,11 +85,12 @@ func (r *CategoryRepository) FindCategoryById(_id primitive.ObjectID) (*model.Ca
 
 	return &category, nil
 }
-func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, error) {
+func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]dto.Category, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	filter := bson.D{}
+	var categoryProducts bool
 	for _, v := range doc {
 		if v.Key == "name" {
 			names := strings.Split(fmt.Sprintf("%s", v.Value), ",")
@@ -106,9 +110,11 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 		}
 
 		if v.Key == "expand" {
-			expand := fmt.Sprintf("%s", v.Value)
-			if expand != "" {
-				filter = append(filter, bson.E{Key: "expand", Value: expand})
+			expand := strings.Split(fmt.Sprintf("%s", v.Value), ",")
+			for i := 0; i < len(expand); i++ {
+				if expand[i] == "category.products" {
+					categoryProducts = true
+				}
 			}
 		}
 	}
@@ -118,33 +124,106 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 		return nil, err
 	}
 
-	categories := []model.Category{}
+	categories := []dto.Category{}
 
 	for cursor.Next(ctx) {
-		var category model.Category
+		var category dto.CategoryProducts
 		if err := cursor.Decode(&category); err != nil {
 			return nil, err
 		}
 
-		validFor := &model.ValidFor{
+		validFor := &dto.ValidFor{
 			StartDateTime: utils.ConvertTimeBangkok(category.ValidFor.StartDateTime),
 			EndDateTime:   utils.ConvertTimeBangkok(category.ValidFor.EndDateTime),
 		}
 
-		var products []model.ProductRef
+		var products []dto.Products
 		if category.Products != nil {
-			for _, v := range category.Products {
-				products = append(products, model.ProductRef{
-					Type:    "Product",
-					ID:      v.ID,
-					Href:    utils.Href("Product", v.ID),
-					Name:    v.Name,
-					Version: v.Version,
-				})
+			if categoryProducts {
+				for _, v := range category.Products {
+					b, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
+					if err != nil {
+						fmt.Println("error call product")
+						fmt.Println(err)
+					}
+					var product dto.Products
+					if err := json.Unmarshal(b, &product); err != nil {
+						fmt.Println("error Unmarshal")
+						fmt.Println(err)
+					}
+					var validFor *dto.ValidFor
+					if product.ValidFor != nil {
+						validFor = &dto.ValidFor{
+							StartDateTime: utils.ConvertTimeBangkok(product.ValidFor.StartDateTime),
+							EndDateTime:   utils.ConvertTimeBangkok(product.ValidFor.EndDateTime),
+						}
+					}
+
+					if product.LastUpdate != "" {
+						product.LastUpdate = utils.ConvertTimeBangkok(product.LastUpdate)
+					}
+					productRef := dto.Products{
+						Type:            product.Type,
+						ID:              product.ID,
+						Href:            utils.Href(product.Type, product.ID),
+						Name:            product.Name,
+						Version:         product.Version,
+						LastUpdate:      product.LastUpdate,
+						ValidFor:        validFor,
+						LifecycleStatus: product.LifecycleStatus,
+					}
+
+					if product.Category != nil {
+						for _, v := range product.Category {
+							productRef.Category = append(productRef.Category, dto.Category{
+								Type:            v.Type,
+								ID:              v.ID,
+								Href:            utils.Href(v.Type, v.ID),
+								Name:            v.Name,
+								Version:         v.Version,
+								LastUpdate:      utils.ConvertTimeBangkok(v.LastUpdate),
+								ValidFor:        validFor,
+								LifecycleStatus: v.LifecycleStatus,
+							})
+						}
+					}
+
+					products = append(products, productRef)
+
+				}
+			} else {
+				for _, v := range category.Products {
+					b, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
+					if err != nil {
+						fmt.Println("error call product")
+						fmt.Println(err)
+					}
+					var product = new(dto.Products)
+					if err := json.Unmarshal(b, &product); err != nil {
+						fmt.Println("error Unmarshal")
+						fmt.Println(err)
+					}
+					if product != nil {
+						products = append(products, dto.Products{
+							Type:    "Product",
+							ID:      v.ID,
+							Href:    utils.Href("Product", v.ID),
+							Name:    v.Name,
+							Version: v.Version,
+						})
+					} else {
+						products = append(products, dto.Products{
+							ID:   v.ID,
+							Name: v.Name,
+						})
+					}
+
+				}
 			}
+
 		}
 
-		categories = append(categories, model.Category{
+		categories = append(categories, dto.Category{
 			Type:            category.Type,
 			ID:              category.ID,
 			Href:            utils.Href(category.Type, category.ID),

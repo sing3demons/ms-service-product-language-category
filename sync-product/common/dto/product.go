@@ -1,4 +1,4 @@
-package model
+package dto
 
 import "time"
 
@@ -54,32 +54,13 @@ type ResponseDataWithTOtal struct {
 	Products []Products `json:"products" bson:"products"`
 }
 
-type Query struct {
-	Name            string `json:"name" bson:"name,omitempty"`
-	Limit           uint64 `json:"limit" bson:"limit,omitempty"`
-	ID              string `json:"id" bson:"id,omitempty"`
-	Depth           uint   `json:"depth" bson:"depth,omitempty"`
-	Expand          string `json:"expand" bson:"expand,omitempty"`
-	LifecycleStatus string `json:"lifecycleStatus" bson:"lifecycleStatus,omitempty"`
-	Category        string `bson:"category,omitempty"`
-	ProductLanguage string `bson:"productLanguage,omitempty"`
-}
 
-type Category struct {
-	Type       string    `json:"@type" validate:"required" bson:"@type"`
-	ID         string    `json:"id" validate:"required" bson:"id"`
-	Href       string    `json:"href,omitempty" bson:"href,omitempty"`
-	Name       string    `json:"name,omitempty" bson:"name,omitempty"`
-	Version    string    `json:"version,omitempty" bson:"version,omitempty"`
-	LastUpdate string    `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
-	ValidFor   *ValidFor `json:"validFor,omitempty" bson:"validFor,omitempty"`
-}
 
 type Products struct {
 	Type               string            `json:"@type" bson:"@type,omitempty"`
 	ID                 string            `json:"id" bson:"id,omitempty"`
 	Name               string            `json:"name,omitempty" bson:"name,omitempty"`
-	Href       string    `json:"href,omitempty" bson:"href,omitempty"`
+	Href               string            `json:"href,omitempty" bson:"href,omitempty"`
 	LifecycleStatus    string            `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
 	Version            string            `json:"version,omitempty" bson:"version,omitempty"`
 	LastUpdate         string            `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
@@ -88,7 +69,3 @@ type Products struct {
 	SupportingLanguage []ProductLanguage `json:"supportingLanguage,omitempty" bson:"supportingLanguage,omitempty"`
 }
 
-type ValidFor struct {
-	StartDateTime string `json:"startDateTime,omitempty" bson:"startDateTime,omitempty"`
-	EndDateTime   string `json:"endDateTime,omitempty" bson:"endDateTime,omitempty"`
-}

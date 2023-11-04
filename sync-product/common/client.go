@@ -9,6 +9,7 @@ import (
 )
 
 func HttpGET(url string) ([]byte, error) {
+	fmt.Println(url)
 	httpReq, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
