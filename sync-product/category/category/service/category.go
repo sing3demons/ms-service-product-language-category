@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sing3demons/product.product.sync/category/category/model"
@@ -170,74 +171,8 @@ func (s *CategoryService) FindAllCategory(query model.Query) ([]dto.Category, er
 			}
 			if category.Products != nil {
 				if categoryProducts {
-					for _, v := range category.Products {
-						b, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
-						if err != nil {
-							fmt.Println("error call product")
-							fmt.Println(err)
-						}
-						var product dto.Products
-						if err := json.Unmarshal(b, &product); err != nil {
-							fmt.Println("error Unmarshal")
-							fmt.Println(err)
-						}
-						var validFor *dto.ValidFor
-						if product.ValidFor != nil {
-							validFor = &dto.ValidFor{
-								StartDateTime: utils.ConvertTimeBangkok(product.ValidFor.StartDateTime),
-								EndDateTime:   utils.ConvertTimeBangkok(product.ValidFor.EndDateTime),
-							}
-						}
-
-						if product.LastUpdate != "" {
-							product.LastUpdate = utils.ConvertTimeBangkok(product.LastUpdate)
-						} else {
-							product.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
-						}
-
-						productRef := dto.Products{
-							Type:            product.Type,
-							ID:              product.ID,
-							Href:            utils.Href(product.Type, product.ID),
-							Name:            product.Name,
-							Version:         product.Version,
-							LastUpdate:      product.LastUpdate,
-							ValidFor:        validFor,
-							LifecycleStatus: product.LifecycleStatus,
-						}
-
-						if product.Category != nil {
-							for _, v := range product.Category {
-								if v.LastUpdate != "" {
-									v.LastUpdate = utils.ConvertTimeBangkok(v.LastUpdate)
-								}
-								v.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
-								fmt.Printf("=== %v-->\n", v.LastUpdate)
-
-							}
-						}
-
-						if product.Category != nil {
-							for _, v := range product.Category {
-								if v.LastUpdate == "" {
-									v.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
-								}
-								productRef.Category = append(productRef.Category, dto.Category{
-									Type:            v.Type,
-									ID:              v.ID,
-									Href:            utils.Href(v.Type, v.ID),
-									Name:            v.Name,
-									Version:         v.Version,
-									LastUpdate:      utils.ConvertTimeBangkok(v.LastUpdate),
-									ValidFor:        validFor,
-									LifecycleStatus: v.LifecycleStatus,
-								})
-							}
-						}
-
-						products = append(products, productRef)
-
-					}
+					products = s.GetProductFromCategory(category)
+					// products, err = common.GetProduct(category)
 				} else {
 					for _, v := range category.Products {
 						b, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
@@ -282,4 +217,102 @@ func (s *CategoryService) FindAllCategory(query model.Query) ([]dto.Category, er
 	}
 
 	return result, nil
+}
+
+func (s *CategoryService) GetProductFromCategory(category model.Category) []dto.Products {
+	start := time.Now()
+	var wg sync.WaitGroup
+	productCh := make(chan dto.Products, len(category.Products))
+	poolSize := 10
+	semaphore := make(chan struct{}, poolSize)
+	for _, v := range category.Products {
+		wg.Add(1)
+		go func(productID string) {
+			defer wg.Done()
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+			b, err := common.HttpGET(utils.GetHost() + "/products/" + productID)
+			if err != nil {
+				fmt.Println("error call product for productID:", productID)
+				fmt.Println(err)
+				return
+			}
+
+			var product dto.Products
+			if err := json.Unmarshal(b, &product); err != nil {
+				fmt.Println("error Unmarshal for productID:", productID)
+				fmt.Println(err)
+				return
+			}
+
+			var validFor *dto.ValidFor
+			if product.ValidFor != nil {
+				validFor = &dto.ValidFor{
+					StartDateTime: utils.ConvertTimeBangkok(product.ValidFor.StartDateTime),
+					EndDateTime:   utils.ConvertTimeBangkok(product.ValidFor.EndDateTime),
+				}
+			}
+
+			if product.LastUpdate != "" {
+				product.LastUpdate = utils.ConvertTimeBangkok(product.LastUpdate)
+			} else {
+				product.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+			}
+
+			productRef := dto.Products{
+				Type:            product.Type,
+				ID:              product.ID,
+				Href:            utils.Href(product.Type, product.ID),
+				Name:            product.Name,
+				Version:         product.Version,
+				LastUpdate:      product.LastUpdate,
+				ValidFor:        validFor,
+				LifecycleStatus: product.LifecycleStatus,
+			}
+
+			if product.Category != nil {
+				for _, v := range product.Category {
+					if v.LastUpdate != "" {
+						v.LastUpdate = utils.ConvertTimeBangkok(v.LastUpdate)
+					} else {
+						v.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+					}
+				}
+			}
+
+			if product.Category != nil {
+				for _, v := range product.Category {
+					if v.LastUpdate == "" {
+						v.LastUpdate = utils.ConvertTimeBangkok(category.LastUpdate)
+					}
+					productRef.Category = append(productRef.Category, dto.Category{
+						Type:            v.Type,
+						ID:              v.ID,
+						Href:            utils.Href(v.Type, v.ID),
+						Name:            v.Name,
+						Version:         v.Version,
+						LastUpdate:      utils.ConvertTimeBangkok(v.LastUpdate),
+						ValidFor:        validFor,
+						LifecycleStatus: v.LifecycleStatus,
+					})
+				}
+			}
+
+			productCh <- productRef
+		}(v.ID)
+	}
+
+	go func() {
+		wg.Wait()
+		close(productCh)
+	}()
+
+	var products []dto.Products
+	for productRef := range productCh {
+		products = append(products, productRef)
+	}
+	end := time.Now()
+	fmt.Printf("Time: %s\n", end.Sub(start))
+
+	return products
 }
