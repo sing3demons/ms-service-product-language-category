@@ -11,8 +11,13 @@ export interface Product {
   name?: string
   version?: string
   category?: Category[]
-  price?: number
+  price?: ProductPrice[]
   description?: string
   supportingLanguage?: ProductLanguage[]
   validFor?: ValidFor
+}
+
+export interface ProductPrice {
+  id?: string
+  name?: string
 }

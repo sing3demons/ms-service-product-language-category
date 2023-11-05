@@ -3,13 +3,15 @@ import { ValidFor } from './index.js'
 export interface ProductLanguage {
   '@type'?: string
   id: string
-  href ?: string
+  href?: string
+  '@referredType'?: string
   languageCode: string
   attachment?: Attachment[]
   name?: string
   version?: string
   lastUpdate?: string
   validFor?: ValidFor
+  referredType?: string
 }
 
 export interface Attachment {

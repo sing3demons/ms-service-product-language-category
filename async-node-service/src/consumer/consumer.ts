@@ -8,6 +8,10 @@ import { ProductLanguage } from '../models/productLanguage.js'
 import { createProductLanguage } from '../service/productLanguage.js'
 import { createProduct } from '../service/product.js'
 import { Product } from '../models/product.js'
+import { IProductPriceDTO } from '../models/productPrice.js'
+import { createProductPrice } from '../service/productPrice.js'
+import { IProductPriceLanguageDTO } from '../models/productPriceLanguage.js'
+import { createProductPriceLanguage } from '../service/productPriceLanguage.js'
 
 // export default class Consume {
 //   public constructor(private consumer: Consumer, private topics: string[]) {}
@@ -125,7 +129,28 @@ async function consumeMessage(consumer: Consumer) {
                 // }
               }
               break
-
+            case TOPIC.createProductPrice:
+              if (message.value) {
+                const req = JSON.parse(message?.value?.toString()) as IProductPriceDTO
+                const result = await createProductPrice(req)
+                if (result === null || result === undefined) {
+                  // await producer(TOPIC.createProductPriceFailed, result)
+                } else {
+                  // await producer(TOPIC.createProductPriceSuccess, result)
+                }
+              }
+              break
+            case TOPIC.createProductPriceLanguage:
+              if (message.value) {
+                const req = JSON.parse(message?.value?.toString()) as IProductPriceLanguageDTO
+                const result = await createProductPriceLanguage(req)
+                if (result === null || result === undefined) {
+                  // await producer(TOPIC.createProductPriceLanguageFailed, result)
+                } else {
+                  // await producer(TOPIC.createProductPriceLanguageSuccess, result)
+                }
+              }
+              break
             default:
               logger.info(`No handler for topic ${topic}`)
               break

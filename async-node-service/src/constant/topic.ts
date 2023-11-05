@@ -17,5 +17,17 @@ const topic = {
   updateProduct: 'product.updateProduct',
   updateProductFailed: 'product.updateProductFailed',
   updateProductSuccess: 'product.updateProductSuccess',
+  createProductPrice: 'productPrice.createProductPrice',
+  createProductPriceFailed: 'productPrice.createProductPriceFailed',
+  createProductPriceSuccess: 'productPrice.createProductPriceSuccess',
+  updateProductPrice: 'productPrice.updateProductPrice',
+  updateProductPriceFailed: 'productPrice.updateProductPriceFailed',
+  updateProductPriceSuccess: 'productPrice.updateProductPriceSuccess',
+  createProductPriceLanguage: 'productPriceLanguage.createProductPriceLanguage',
+  createProductPriceLanguageFailed: 'productPriceLanguage.createProductPriceLanguageFailed',
+  createProductPriceLanguageSuccess: 'productPriceLanguage.createProductPriceLanguageSuccess',
+  updateProductPriceLanguage: 'productPriceLanguage.updateProductPriceLanguage',
+  updateProductPriceLanguageFailed: 'productPriceLanguage.updateProductPriceLanguageFailed',
+  updateProductPriceLanguageSuccess: 'productPriceLanguage.updateProductPriceLanguageSuccess',
 }
 export default topic
