@@ -30,6 +30,7 @@ async function createProduct(req: Product) {
             name: item?.name || undefined,
             '@type': 'ProductLanguage',
             languageCode: item.languageCode,
+            referredType: item['referredType'],
           })
         }
       }
