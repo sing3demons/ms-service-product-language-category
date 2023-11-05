@@ -14,4 +14,5 @@ docker exec -it mongodb1 mongosh --eval "rs.initiate({_id:'my-replica-set', memb
 
 ```
 docker compose -f docker-compose.db.yml up -d
+docker compose up -d
 ```
