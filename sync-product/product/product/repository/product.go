@@ -35,7 +35,7 @@ func (r *ProductRepository) FindProduct(id string) (*model.Products, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var product model.Products
-	filter := bson.M{"id": id}
+	filter := bson.M{"id": id, "deleteDate": nil}
 	err := r.db.FindOne(ctx, filter).Decode(&product)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r *ProductRepository) FindProductById(_id primitive.ObjectID) (*model.Prod
 	defer cancel()
 
 	var product model.Products
-	err := r.db.FindOne(ctx, bson.M{"_id": _id}).Decode(&product)
+	err := r.db.FindOne(ctx, bson.M{"_id": _id, "deleteDate": nil}).Decode(&product)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +61,7 @@ func (r *ProductRepository) FindAllProduct(doc bson.D) ([]model.Products, error)
 	defer cancel()
 
 	filter := bson.D{}
+	filter = append(filter, bson.E{Key: "deleteDate", Value: nil})
 	for _, v := range doc {
 		if v.Key == "name" {
 			names := strings.Split(fmt.Sprintf("%s", v.Value), ",")
