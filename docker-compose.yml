@@ -6,7 +6,7 @@ services:
       context: ./async-node-service/
       dockerfile: Dockerfile
     image: sing3demons/async-node-service
-    container_name: async-node-service
+    container_name: node-service
     restart: always
     environment:
       - MONGO_URL=mongodb://mongodb1:27017,mongodb1:27018,mongodb1:27019/?replicaSet=my-replica-set
@@ -17,8 +17,8 @@ services:
     build:
       context: ./sync-product/
       dockerfile: Dockerfile
-    image: sing3demons/sync-product-service
-    container_name: sync-product
+    image: sing3demons/go-service
+    container_name: go-service
     environment:
       - MONGO_URL=mongodb://mongodb1:27017,mongodb1:27018,mongodb1:27019/?replicaSet=my-replica-set
       - KAFKA_BROKERS=kafka:9092

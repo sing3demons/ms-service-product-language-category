@@ -13,16 +13,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	category_db "github.com/sing3demons/product.product.sync/category/db"
 	handler_category "github.com/sing3demons/product.product.sync/category/handler"
 	repository_category "github.com/sing3demons/product.product.sync/category/repository"
 	service_category "github.com/sing3demons/product.product.sync/category/service"
 	"github.com/sing3demons/product.product.sync/producer"
-	product_db "github.com/sing3demons/product.product.sync/product/db"
 	handler_product "github.com/sing3demons/product.product.sync/product/handler"
 	repository_product "github.com/sing3demons/product.product.sync/product/repository"
 	service_product "github.com/sing3demons/product.product.sync/product/service"
-	productLanguage_db "github.com/sing3demons/product.product.sync/productLanguage/db"
 	handler_productLanguage "github.com/sing3demons/product.product.sync/productLanguage/handler"
 	repository_productLanguage "github.com/sing3demons/product.product.sync/productLanguage/repository"
 	service_productLanguage "github.com/sing3demons/product.product.sync/productLanguage/service"
@@ -35,19 +32,22 @@ func main() {
 		if err := godotenv.Load(".env"); err != nil {
 			panic(err)
 		}
-		var KAFKA_SERVERS = os.Getenv("KAFKA_SERVERS")
-		fmt.Printf("%s\n", KAFKA_SERVERS)
 	}
 
-	produce := producer.NewProducer(os.Getenv("KAFKA_SERVERS"))
+	connect, err := ConnectMonoDB()
+	if err != nil {
+		panic(err)
+	}
+	produce := producer.NewProducer()
 
 	r := gin.Default()
 
 	{
-		col, err := product_db.ConnectMonoDB()
-		if err != nil {
-			panic(err)
-		}
+		// col, err := product_db.ConnectMonoDB()
+		// if err != nil {
+		// 	panic(err)
+		// }
+		col := connect.Database("product_microservice_db").Collection("product")
 		repo := repository_product.NewProduct(col)
 		service := service_product.NewProductService(repo, produce)
 		handler := handler_product.NewProduct(service)
@@ -57,12 +57,11 @@ func main() {
 		r.POST("/products", handler.CreateProduct)
 	}
 	{
-		col, err := productLanguage_db.ConnectMonoDB()
-
-		if err != nil {
-			panic(err)
-		}
-
+		// col, err := productLanguage_db.ConnectMonoDB()
+		// if err != nil {
+		// 	panic(err)
+		// }
+		col := connect.Database("productLanguage_microservice_db").Collection("productLanguage")
 		repo := repository_productLanguage.NewProductLanguage(col)
 		service := service_productLanguage.NewProductLanguageService(repo, produce)
 		handler := handler_productLanguage.NewProductLanguage(service)
@@ -85,11 +84,11 @@ func main() {
 	}
 
 	{
-		col, err := category_db.ConnectMonoDB()
-		if err != nil {
-			panic(err)
-		}
-
+		// col, err := category_db.ConnectMonoDB()
+		// if err != nil {
+		// 	panic(err)
+		// }
+		col := connect.Database("category_microservice_db").Collection("category")
 		repo := repository_category.NewCategory(col)
 		service := service_category.NewCategoryService(repo, produce)
 		handler := handler_category.NewCategory(service)
