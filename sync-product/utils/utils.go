@@ -20,7 +20,15 @@ func Href(key, value string) string {
 }
 
 func ConvertTimeBangkok(dataTime string) string {
-	loc, _ := time.LoadLocation("Asia/Bangkok")
-	t, _ := time.Parse("2006-01-02T15:04:05Z07:00", dataTime)
+	loc, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		fmt.Println("error load location")
+		fmt.Println(err)
+	}
+	t, err := time.Parse("2006-01-02T15:04:05Z07:00", dataTime)
+	if err != nil {
+		fmt.Println("error parse time")
+		fmt.Println(err)
+	}
 	return t.In(loc).Format("2006-01-02T15:04:05Z07:00")
 }

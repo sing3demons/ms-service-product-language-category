@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -33,7 +34,14 @@ func ConnectMonoDB() (*mongo.Client, error) {
 	}
 	fmt.Println("Connected to MongoDB!")
 	return client, nil
-	// return client.Database("microservice_db"), nil
+}
 
-	// return db.Collection("product"), nil
+func DisconnectMongo(client *mongo.Client) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	err := client.Disconnect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

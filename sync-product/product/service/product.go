@@ -8,6 +8,7 @@ import (
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/product/model"
 	"github.com/sing3demons/product.product.sync/product/repository"
+	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -23,11 +24,11 @@ func (s *ProductService) CreateProduct(req model.Products) error {
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
 	}
-	loc, _ := time.LoadLocation("Asia/Bangkok")
+
 	document := model.Products{
 		Name:               req.Name,
 		Version:            req.Version,
-		LastUpdate:         time.Now().In(loc).Format("2006-01-02T15:04:05Z07:00"),
+		LastUpdate:         utils.ConvertTimeBangkok(time.Now().String()),
 		ValidFor:           req.ValidFor,
 		ID:                 req.ID,
 		LifecycleStatus:    req.LifecycleStatus,

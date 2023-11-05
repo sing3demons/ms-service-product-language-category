@@ -31,13 +31,13 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
 	}
-	loc, _ := time.LoadLocation("Asia/Bangkok")
+
 	document := model.Category{
 		Type:            "Category",
 		ID:              req.ID,
 		Name:            req.Name,
 		Version:         req.Version,
-		LastUpdate:      time.Now().In(loc).Format("2006-01-02T15:04:05Z07:00"),
+		LastUpdate:      utils.ConvertTimeBangkok(time.Now().String()),
 		ValidFor:        req.ValidFor,
 		Products:        req.Products,
 		LifecycleStatus: req.LifecycleStatus,
@@ -45,7 +45,7 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 
 	// servers := "localhost:9092"
 	produce := producer.NewProducer()
-	if err := produce.SendMessage("category.createCategory", "", document); err != nil {
+	if err := produce.SendMessage(constants.CREATE_CATEGORY, "", document); err != nil {
 		return err
 	}
 
@@ -263,7 +263,7 @@ func (s *CategoryService) GetProductFromCategory(category model.Category) []dto.
 			productRef := dto.Products{
 				Type:            product.Type,
 				ID:              product.ID,
-				Href:            utils.Href(product.Type, product.ID),
+				Href:            utils.Href("products", product.ID),
 				Name:            product.Name,
 				Version:         product.Version,
 				LastUpdate:      product.LastUpdate,
@@ -289,7 +289,7 @@ func (s *CategoryService) GetProductFromCategory(category model.Category) []dto.
 					productRef.Category = append(productRef.Category, dto.Category{
 						Type:            v.Type,
 						ID:              v.ID,
-						Href:            utils.Href(v.Type, v.ID),
+						Href:            utils.Href("products", v.ID),
 						Name:            v.Name,
 						Version:         v.Version,
 						LastUpdate:      utils.ConvertTimeBangkok(v.LastUpdate),

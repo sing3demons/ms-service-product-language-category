@@ -7,6 +7,7 @@ import (
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/productLanguage/model"
 	"github.com/sing3demons/product.product.sync/productLanguage/repository"
+	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -22,13 +23,11 @@ func (s *ProductLanguageService) CreateProductLanguage(req model.ProductLanguage
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
 	}
-	loc, _ := time.LoadLocation("Asia/Bangkok")
 	document := model.ProductLanguage{
 		ID:           req.ID,
-		Href:         "/productLanguage/" + req.Href,
 		Name:         req.Name,
 		Version:      req.Version,
-		LastUpdate:   time.Now().In(loc).Format("2006-01-02T15:04:05Z07:00"),
+		LastUpdate:   utils.ConvertTimeBangkok(time.Now().String()),
 		ValidFor:     req.ValidFor,
 		LanguageCode: req.LanguageCode,
 		Attachment:   req.Attachment,

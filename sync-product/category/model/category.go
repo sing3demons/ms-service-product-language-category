@@ -10,7 +10,7 @@ type Category struct {
 	Version         string       `json:"version,omitempty" bson:"version,omitempty"`
 	LastUpdate      string       `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
 	LifecycleStatus string       `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
-	ValidFor        *ValidFor    `json:"validFor,omitempty" bson:"validFor,omitempty"`
+	ValidFor        ValidFor     `json:"validFor,omitempty" bson:"validFor,omitempty"`
 	Products        []ProductRef `json:"products,omitempty" bson:"products,omitempty"`
 }
 
