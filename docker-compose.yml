@@ -24,6 +24,7 @@ services:
       - KAFKA_BROKERS=kafka:9092
       - ZONE=PROD
       - TZ=Asia/Bangkok
+      - HOST=http://localhost:2566
     ports:
       - 2566:2566
     networks:

@@ -185,7 +185,7 @@ func (s *CategoryService) FindAllCategory(query model.Query) ([]dto.Category, er
 							products = append(products, dto.Products{
 								Type:    "Product",
 								ID:      v.ID,
-								Href:    utils.Href("Product", v.ID),
+								Href:    utils.Href("Products", v.ID),
 								Name:    v.Name,
 								Version: v.Version,
 							})

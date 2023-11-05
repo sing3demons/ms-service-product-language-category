@@ -1,9 +1,13 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
+	"sync"
 	"time"
 
+	"github.com/sing3demons/product.product.sync/common"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/product/model"
@@ -84,9 +88,87 @@ func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWi
 		filter = append(filter, bson.E{Key: "productLanguage", Value: query.ProductLanguage})
 	}
 
-	products, err := s.repo.FindAllProduct(filter)
+	result, err := s.repo.FindAllProduct(filter)
 	if err != nil {
 		return nil, err
+	}
+
+	products := []model.Products{}
+
+	var categoryProducts bool
+	if query.Expand != "" {
+		expand := strings.Split(query.Expand, ",")
+		for i := 0; i < len(expand); i++ {
+			if expand[i] == "product.category" {
+				categoryProducts = true
+			}
+		}
+	}
+
+	for _, item := range result {
+		categories := []model.Category{}
+		if item.Category != nil {
+			if categoryProducts {
+				result := s.GetCategoryFromProducts(item.Category)
+				for _, v := range result {
+					p := []model.Products{}
+					if v.Products != nil {
+						p = append(p, model.Products{
+							Type:            v.Type,
+							ID:              v.ID,
+							Href:            utils.Href("products", v.ID),
+							Name:            v.Name,
+							LifecycleStatus: v.LifecycleStatus,
+							LastUpdate:      v.LastUpdate,
+							ValidFor:        v.ValidFor,
+							Version:         v.Version,
+						})
+					}
+					categories = append(categories, model.Category{
+						Type:            v.Type,
+						ID:              v.ID,
+						Href:            utils.Href("category", v.ID),
+						Name:            v.Name,
+						Version:         v.Version,
+						LastUpdate:      v.LastUpdate,
+						ValidFor:        v.ValidFor,
+						LifecycleStatus: v.LifecycleStatus,
+						Products:        p,
+					})
+				}
+
+			} else {
+				for _, v := range item.Category {
+					if v.LastUpdate != "" {
+						v.LastUpdate = utils.ConvertTimeBangkok(v.LastUpdate)
+					}
+					categories = append(categories, model.Category{
+						Type:            v.Type,
+						ID:              v.ID,
+						Href:            utils.Href("category", v.ID),
+						Name:            v.Name,
+						Version:         v.Version,
+						LastUpdate:      v.LastUpdate,
+						ValidFor:        v.ValidFor,
+						LifecycleStatus: v.LifecycleStatus,
+					})
+				}
+			}
+		}
+
+		product := model.Products{
+			ID:                 item.ID,
+			Name:               item.Name,
+			Version:            item.Version,
+			Href:               utils.Href("products", item.ID),
+			LastUpdate:         item.LastUpdate,
+			ValidFor:           item.ValidFor,
+			LifecycleStatus:    item.LifecycleStatus,
+			Category:           categories,
+			SupportingLanguage: item.SupportingLanguage,
+		}
+
+		products = append(products, product)
 	}
 
 	total := make(chan int64)
@@ -99,4 +181,62 @@ func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWi
 	}
 
 	return &responses, nil
+}
+
+func (s *ProductService) GetCategoryFromProducts(categories []model.Category) []model.Category {
+	start := time.Now()
+	var wg sync.WaitGroup
+	resultCh := make(chan model.Category, len(categories))
+	poolSize := 10
+	semaphore := make(chan struct{}, poolSize)
+	for _, v := range categories {
+		wg.Add(1)
+		go func(id string) {
+			defer wg.Done()
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+			b, err := common.HttpGET(utils.GetHost() + "/category/" + id)
+			if err != nil {
+				fmt.Println("error call product for productID:", id)
+				fmt.Println(err)
+				return
+			}
+
+			var result model.Category
+			if err := json.Unmarshal(b, &result); err != nil {
+				fmt.Println("error Unmarshal for productID:", id)
+				fmt.Println(err)
+				return
+			}
+
+			// var validFor *dto.ValidFor
+			// if result.ValidFor != nil {
+			// 	validFor = &model.ValidFor{
+			// 		StartDateTime: utils.ConvertTimeBangkok(result.ValidFor.StartDateTime),
+			// 		EndDateTime:   utils.ConvertTimeBangkok(result.ValidFor.EndDateTime),
+			// 	}
+			// 	result.ValidFor = validFor
+			// }
+
+			if result.LastUpdate != "" {
+				result.LastUpdate = utils.ConvertTimeBangkok(result.LastUpdate)
+			}
+
+			resultCh <- result
+		}(v.ID)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	var categoriesDto []model.Category
+	for r := range resultCh {
+		categoriesDto = append(categoriesDto, r)
+	}
+	end := time.Now()
+	fmt.Printf("Time: %s\n", end.Sub(start))
+
+	return categoriesDto
 }

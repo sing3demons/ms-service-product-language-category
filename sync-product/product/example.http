@@ -22,4 +22,4 @@ POST http://localhost:2566/products HTTP/1.1
 }
 
 ###
-GET http://localhost:2566/products?expand=category,supportingLanguage HTTP/1.1
+GET http://localhost:2566/products?expand=product.category,supportingLanguage HTTP/1.1

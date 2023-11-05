@@ -51,6 +51,8 @@ type Category struct {
 	Version    string    `json:"version,omitempty" bson:"version,omitempty"`
 	LastUpdate string    `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
 	ValidFor   *ValidFor `json:"validFor,omitempty" bson:"validFor,omitempty"`
+	LifecycleStatus string `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
+	Products   []Products `json:"products,omitempty" bson:"products,omitempty"`
 }
 
 type Products struct {
