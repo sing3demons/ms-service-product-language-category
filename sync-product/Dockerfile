@@ -1,15 +1,26 @@
-FROM golang:1.21.1 as builder
-WORKDIR /usr/src/app
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+FROM golang:1.21.1-alpine AS builder
+
+ENV PATH="/go/bin:${PATH}"
+ENV GO111MODULE=on
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+WORKDIR /go/src
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+RUN apk -U add ca-certificates
+RUN apk update && apk upgrade && apk add pkgconf git bash build-base sudo
+RUN git clone https://github.com/edenhill/librdkafka.git && cd librdkafka && ./configure --prefix /usr && make && make install
 
 COPY . .
-RUN go build -v -o /usr/local/bin/main main.go
-# CMD [ "app" ]
-FROM alpine:3.18
-RUN apk --no-cache add ca-certificates
-WORKDIR /bin
-COPY --from=builder /usr/local/bin/main /bin
-RUN chmod +x /bin/main
+
+RUN go build -tags musl --ldflags "-extldflags -static" -o main .
+
+FROM scratch AS runner
+COPY --from=builder /go/src/main /
 EXPOSE 2566
-CMD ["/main"]
+ENTRYPOINT ["./main"]

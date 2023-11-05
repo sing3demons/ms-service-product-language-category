@@ -30,9 +30,14 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		panic(err)
+	if os.Getenv("ZONE") == "PROD" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 	}
+
 	r := gin.Default()
 
 	{
