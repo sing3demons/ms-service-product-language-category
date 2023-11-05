@@ -4,25 +4,6 @@ import logger from './utils/logger.js'
 const groupId = 'category.category,product.product-1'
 const clientId = 'product,category.service'
 
-// export function configKafka(broker: string): Kafka {
-//   const kafka = new Kafka({
-//     clientId,
-//     brokers: () => {
-//       logger.info('Kafka broker: ' + broker)
-//       return [broker!]
-//     },
-//     requestTimeout: 25000,
-//     retry: {
-//       factor: 0,
-//       multiplier: 4,
-//       maxRetryTime: 25000,
-//       retries: 10,
-//     },
-//   })
-
-//   return kafka
-// }
-
 export default class KafkaNode {
   public kafka: Kafka
   public constructor(broker: string) {
@@ -81,7 +62,7 @@ export default class KafkaNode {
     await admin.connect()
 
     for (const topic of topics) {
-      await admin.createTopics({
+      const createTopic = await admin.createTopics({
         topics: [
           {
             topic,
@@ -90,7 +71,7 @@ export default class KafkaNode {
           },
         ],
       })
-      console.log('Topic created successfully')
+      console.log(`Topic ${topic} created with result ${createTopic}`)
     }
 
     await admin.disconnect()

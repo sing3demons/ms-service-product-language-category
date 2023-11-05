@@ -1,4 +1,4 @@
-import { Consumer, Kafka } from 'kafkajs'
+import { Consumer } from 'kafkajs'
 import logger from '../utils/logger.js'
 import { createCategory, updateCategory } from '../service/category.js'
 import { Category } from '../models/category.js'
