@@ -44,7 +44,7 @@ type ResponseDataWithTOtal struct {
 }
 
 type Category struct {
-	Type       string    `json:"@type" validate:"required" bson:"@type"`
+	Type       string    `json:"@type,omitempty" validate:"required" bson:"@type,omitempty"`
 	ID         string    `json:"id" validate:"required" bson:"id"`
 	Href       string    `json:"href,omitempty" bson:"href,omitempty"`
 	Name       string    `json:"name,omitempty" bson:"name,omitempty"`
@@ -56,7 +56,7 @@ type Category struct {
 }
 
 type Products struct {
-	Type               string            `json:"@type" bson:"@type,omitempty"`
+	Type               string            `json:"@type,omitempty" bson:"@type,omitempty"`
 	ID                 string            `json:"id" bson:"id,omitempty"`
 	Name               string            `json:"name,omitempty" bson:"name,omitempty"`
 	Href               string            `json:"href,omitempty" bson:"href,omitempty"`

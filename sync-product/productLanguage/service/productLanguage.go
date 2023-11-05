@@ -7,7 +7,6 @@ import (
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/productLanguage/model"
 	"github.com/sing3demons/product.product.sync/productLanguage/repository"
-	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -17,24 +16,26 @@ type ProductLanguageService struct {
 }
 
 func NewProductLanguageService(repo *repository.ProductLanguageRepository, produce *producer.Producer) *ProductLanguageService {
-	return &ProductLanguageService{repo: repo}
+	return &ProductLanguageService{repo: repo, produce: produce}
 }
 
 func (s *ProductLanguageService) CreateProductLanguage(req model.ProductLanguage) error {
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
 	}
+
 	document := model.ProductLanguage{
 		ID:           req.ID,
 		Name:         req.Name,
 		Version:      req.Version,
-		LastUpdate:   utils.ConvertTimeBangkok(time.Now().String()),
+		LastUpdate:   time.Now().Format(time.RFC3339),
 		ValidFor:     req.ValidFor,
 		LanguageCode: req.LanguageCode,
 		Attachment:   req.Attachment,
 	}
 
 	if err := s.produce.SendMessage("productLanguage.createProductLanguage", "", document); err != nil {
+		fmt.Printf("error: %v", err)
 		return err
 	}
 
