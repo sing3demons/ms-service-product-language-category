@@ -38,32 +38,9 @@ type ValidForDate struct {
 	EndDateTime   time.Time `json:"endDateTime,omitempty" bson:"endDateTime,omitempty"`
 }
 
-// type Product struct {
-// 	Type               string            `json:"@type" bson:"@type,omitempty"`
-// 	ID                 string            `json:"id" bson:"id,omitempty"`
-// 	Name               string            `json:"name,omitempty" bson:"name,omitempty"`
-// 	LifecycleStatus    string            `json:"lifecycleStatus,omitempty" bson:"lifecycleStatus,omitempty"`
-// 	Version            string            `json:"version,omitempty" bson:"version,omitempty"`
-// 	LastUpdate         string            `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`
-// 	ValidFor           ValidFor          `json:"validFor,omitempty" bson:"validFor,omitempty"`
-// 	Category           []Category        `json:"category,omitempty" bson:"category,omitempty"`
-// 	SupportingLanguage []ProductLanguage `json:"supportingLanguage,omitempty" bson:"supportingLanguage,omitempty"`
-// }
-
 type ResponseDataWithTOtal struct {
 	Total    int64      `json:"total" bson:"total"`
 	Products []Products `json:"products" bson:"products"`
-}
-
-type Query struct {
-	Name            string `json:"name" bson:"name,omitempty"`
-	Limit           uint64 `json:"limit" bson:"limit,omitempty"`
-	ID              string `json:"id" bson:"id,omitempty"`
-	Depth           uint   `json:"depth" bson:"depth,omitempty"`
-	Expand          string `json:"expand" bson:"expand,omitempty"`
-	LifecycleStatus string `json:"lifecycleStatus" bson:"lifecycleStatus,omitempty"`
-	Category        string `bson:"category,omitempty"`
-	ProductLanguage string `bson:"productLanguage,omitempty"`
 }
 
 type Category struct {

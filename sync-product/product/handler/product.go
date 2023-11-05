@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/product/model"
 	"github.com/sing3demons/product.product.sync/product/service"
 )
@@ -44,7 +45,7 @@ func (h *Product) FindProduct(c *gin.Context) {
 }
 
 func (h *Product) FindAllProduct(c *gin.Context) {
-	query := model.Query{}
+	query := dto.Query{}
 	name := c.Query("name")
 	if name != "" {
 		query.Name = name

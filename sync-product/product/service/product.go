@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/product/model"
 	"github.com/sing3demons/product.product.sync/product/repository"
@@ -52,7 +53,7 @@ func (s *ProductService) FindProduct(id string) (*model.Products, error) {
 	return product, nil
 }
 
-func (s *ProductService) FindAllProducts(query model.Query) (*model.ResponseDataWithTOtal, error) {
+func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWithTOtal, error) {
 	fmt.Print(query)
 	filter := bson.D{}
 

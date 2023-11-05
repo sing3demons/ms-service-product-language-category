@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/common/dto"
-	"github.com/sing3demons/product.product.sync/product/product/model"
 	"github.com/sing3demons/product.product.sync/productPriceLanguage/service"
 )
 
@@ -18,7 +17,7 @@ func NewProductPriceLanguageHandler(svc *service.ProductPriceLanguageService) *P
 }
 
 func (h *ProductPriceLanguageHandler) FindProductPriceLanguages(c *gin.Context) {
-	query := model.Query{}
+	query := dto.Query{}
 	name := c.Query("name")
 	if name != "" {
 		query.Name = name

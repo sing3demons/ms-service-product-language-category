@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
-	"github.com/sing3demons/product.product.sync/product/product/model"
 	"github.com/sing3demons/product.product.sync/productPriceLanguage/repository"
 	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,7 +16,7 @@ func NewProductPriceLanguageService(repo *repository.ProductPriceLanguageReposit
 	return &ProductPriceLanguageService{repo}
 }
 
-func (s *ProductPriceLanguageService) FindProductPriceLanguages(query model.Query) ([]dto.ProductPriceLanguage, error) {
+func (s *ProductPriceLanguageService) FindProductPriceLanguages(query dto.Query) ([]dto.ProductPriceLanguage, error) {
 	filter := bson.D{}
 
 	if query.Name != "" {

@@ -6,7 +6,6 @@ import (
 
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
-	"github.com/sing3demons/product.product.sync/product/product/model"
 	"github.com/sing3demons/product.product.sync/productPrice/repository"
 	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,7 +19,7 @@ func NewProductPriceService(repo *repository.ProductPriceRepository) *ProductPri
 	return &ProductPriceService{repo}
 }
 
-func (svc *ProductPriceService) FindProductPrices(query model.Query) ([]dto.ProductPrice, error) {
+func (svc *ProductPriceService) FindProductPrices(query dto.Query) ([]dto.ProductPrice, error) {
 	filter := bson.D{}
 
 	if query.Name != "" {

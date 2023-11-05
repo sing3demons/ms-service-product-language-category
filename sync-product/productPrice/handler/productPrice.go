@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/common/constants"
 	"github.com/sing3demons/product.product.sync/common/dto"
-	"github.com/sing3demons/product.product.sync/product/product/model"
 	"github.com/sing3demons/product.product.sync/productPrice/service"
 )
 
@@ -19,7 +18,7 @@ func NewProductPriceHandler(svc *service.ProductPriceService) *ProductPriceHandl
 }
 
 func (h *ProductPriceHandler) FindProductPrices(c *gin.Context) {
-	query := model.Query{}
+	query := dto.Query{}
 	name := c.Query("name")
 	if name != "" {
 		query.Name = name
