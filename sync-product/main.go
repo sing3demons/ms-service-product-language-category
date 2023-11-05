@@ -17,6 +17,7 @@ import (
 	handler_category "github.com/sing3demons/product.product.sync/category/handler"
 	repository_category "github.com/sing3demons/product.product.sync/category/repository"
 	service_category "github.com/sing3demons/product.product.sync/category/service"
+	"github.com/sing3demons/product.product.sync/producer"
 	product_db "github.com/sing3demons/product.product.sync/product/db"
 	handler_product "github.com/sing3demons/product.product.sync/product/handler"
 	repository_product "github.com/sing3demons/product.product.sync/product/repository"
@@ -25,18 +26,20 @@ import (
 	handler_productLanguage "github.com/sing3demons/product.product.sync/productLanguage/handler"
 	repository_productLanguage "github.com/sing3demons/product.product.sync/productLanguage/repository"
 	service_productLanguage "github.com/sing3demons/product.product.sync/productLanguage/service"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func main() {
 	if os.Getenv("ZONE") == "PROD" {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
-		if err := godotenv.Load(); err != nil {
+		if err := godotenv.Load(".env"); err != nil {
 			panic(err)
 		}
+		var KAFKA_SERVERS = os.Getenv("KAFKA_SERVERS")
+		fmt.Printf("%s\n", KAFKA_SERVERS)
 	}
+
+	produce := producer.NewProducer(os.Getenv("KAFKA_SERVERS"))
 
 	r := gin.Default()
 
@@ -45,11 +48,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		col.Indexes().CreateOne(context.Background(), mongo.IndexModel{
-			Keys: bson.M{"id": 1},
-		})
 		repo := repository_product.NewProduct(col)
-		service := service_product.NewProductService(repo)
+		service := service_product.NewProductService(repo, produce)
 		handler := handler_product.NewProduct(service)
 
 		r.GET("/products", handler.FindAllProduct)
@@ -63,15 +63,8 @@ func main() {
 			panic(err)
 		}
 
-		col.Indexes().CreateOne(context.Background(), mongo.IndexModel{
-			Keys: bson.M{
-				"id": 1,
-			},
-			Options: nil,
-		})
-
 		repo := repository_productLanguage.NewProductLanguage(col)
-		service := service_productLanguage.NewProductLanguageService(repo)
+		service := service_productLanguage.NewProductLanguageService(repo, produce)
 		handler := handler_productLanguage.NewProductLanguage(service)
 
 		r.GET("/productLanguage", handler.FindAllCategory)
@@ -97,15 +90,8 @@ func main() {
 			panic(err)
 		}
 
-		col.Indexes().CreateOne(context.Background(), mongo.IndexModel{
-			Keys: bson.M{
-				"id": 1,
-			},
-			Options: nil,
-		})
-
 		repo := repository_category.NewCategory(col)
-		service := service_category.NewCategoryService(repo)
+		service := service_category.NewCategoryService(repo, produce)
 		handler := handler_category.NewCategory(service)
 
 		r.GET("/category", handler.FindAllCategory)

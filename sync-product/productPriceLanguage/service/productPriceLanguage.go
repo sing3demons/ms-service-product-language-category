@@ -9,11 +9,12 @@ import (
 )
 
 type ProductPriceLanguageService struct {
-	repo *repository.ProductPriceLanguageRepository
+	repo    *repository.ProductPriceLanguageRepository
+	produce *producer.Producer
 }
 
-func NewProductPriceLanguageService(repo *repository.ProductPriceLanguageRepository) *ProductPriceLanguageService {
-	return &ProductPriceLanguageService{repo}
+func NewProductPriceLanguageService(repo *repository.ProductPriceLanguageRepository, produce *producer.Producer) *ProductPriceLanguageService {
+	return &ProductPriceLanguageService{repo, produce}
 }
 
 func (s *ProductPriceLanguageService) FindProductPriceLanguages(query dto.Query) ([]dto.ProductPriceLanguage, error) {
@@ -60,8 +61,7 @@ func (s *ProductPriceLanguageService) CreateProductPriceLanguage(req dto.Product
 		doc.ValidFor.EndDateTime = utils.ConvertTimeBangkok(req.ValidFor.EndDateTime)
 	}
 
-	produce := producer.NewProducer()
-	if err := produce.SendMessage("product.createProductPriceLanguage", "", doc); err != nil {
+	if err := s.produce.SendMessage("product.createProductPriceLanguage", "", doc); err != nil {
 		return err
 	}
 	return nil

@@ -13,11 +13,12 @@ import (
 )
 
 type ProductService struct {
-	repo *repository.ProductRepository
+	repo    *repository.ProductRepository
+	produce *producer.Producer
 }
 
-func NewProductService(repo *repository.ProductRepository) *ProductService {
-	return &ProductService{repo: repo}
+func NewProductService(repo *repository.ProductRepository, produce *producer.Producer) *ProductService {
+	return &ProductService{repo: repo, produce: produce}
 }
 
 func (s *ProductService) CreateProduct(req model.Products) error {
@@ -35,9 +36,8 @@ func (s *ProductService) CreateProduct(req model.Products) error {
 		Category:           req.Category,
 		SupportingLanguage: req.SupportingLanguage,
 	}
-	// servers := "localhost:9092"
-	produce := producer.NewProducer()
-	if err := produce.SendMessage("product.createProduct", "", document); err != nil {
+
+	if err := s.produce.SendMessage("product.createProduct", "", document); err != nil {
 		return err
 	}
 

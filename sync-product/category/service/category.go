@@ -20,10 +20,11 @@ import (
 
 type CategoryService struct {
 	repo *repository.CategoryRepository
+	produce *producer.Producer
 }
 
-func NewCategoryService(repo *repository.CategoryRepository) *CategoryService {
-	return &CategoryService{repo: repo}
+func NewCategoryService(repo *repository.CategoryRepository, produce *producer.Producer) *CategoryService {
+	return &CategoryService{repo: repo, produce: produce}
 }
 
 func (s *CategoryService) CreateCategory(req model.Category) error {
@@ -43,9 +44,7 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 		LifecycleStatus: req.LifecycleStatus,
 	}
 
-	// servers := "localhost:9092"
-	produce := producer.NewProducer()
-	if err := produce.SendMessage(constants.CREATE_CATEGORY, "", document); err != nil {
+	if err := s.produce.SendMessage(constants.CREATE_CATEGORY, "", document); err != nil {
 		return err
 	}
 
@@ -96,9 +95,7 @@ func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) er
 		document.Products = products
 	}
 
-	// servers := "localhost:9092"
-	produce := producer.NewProducer()
-	if err := produce.SendMessage(constants.UPDATE_CATEGORY, "", document); err != nil {
+	if err := s.produce.SendMessage(constants.UPDATE_CATEGORY, "", document); err != nil {
 		return err
 	}
 
@@ -108,9 +105,7 @@ func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) er
 func (s *CategoryService) DeleteCategory(id string, req model.UpdateCategory) error {
 	document := model.UpdateCategory{}
 
-	// servers := "localhost:9092"
-	produce := producer.NewProducer()
-	if err := produce.SendMessage(constants.DELETE_CATEGORY, "", document); err != nil {
+	if err := s.produce.SendMessage(constants.DELETE_CATEGORY, "", document); err != nil {
 		return err
 	}
 

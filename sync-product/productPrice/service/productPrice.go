@@ -12,11 +12,12 @@ import (
 )
 
 type ProductPriceService struct {
-	repo *repository.ProductPriceRepository
+	repo    *repository.ProductPriceRepository
+	produce *producer.Producer
 }
 
-func NewProductPriceService(repo *repository.ProductPriceRepository) *ProductPriceService {
-	return &ProductPriceService{repo}
+func NewProductPriceService(repo *repository.ProductPriceRepository, produce *producer.Producer) *ProductPriceService {
+	return &ProductPriceService{repo, produce}
 }
 
 func (svc *ProductPriceService) FindProductPrices(query dto.Query) ([]dto.ProductPrice, error) {
@@ -76,8 +77,7 @@ func (svc *ProductPriceService) CreateProductPrice(req dto.ProductPrice) error {
 		doc.ValidFor.EndDateTime = utils.ConvertTimeBangkok(req.ValidFor.EndDateTime)
 	}
 
-	produce := producer.NewProducer()
-	if err := produce.SendMessage("product.createProductPrice", "", doc); err != nil {
+	if err := svc.produce.SendMessage("product.createProductPrice", "", doc); err != nil {
 		return err
 	}
 	return nil

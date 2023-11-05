@@ -1,30 +1,59 @@
-import { MongoClient } from 'mongodb'
+import { CreateIndexesOptions, MongoClient } from 'mongodb'
 import { Category } from './models/category.js'
 
 const url = process.env.MONGO_URL || 'mongodb://mongodb1:27017,mongodb2:27018,mongodb3:27019/?replicaSet=my-replica-set'
 const client = new MongoClient(url)
 
+const options: CreateIndexesOptions = { unique: true, sparse: true, checkKeys: true }
+
+const createIndex = [
+  {
+    dbName: 'category_microservice_db',
+    collectionName: 'category',
+    indexSpec: { id: 1 },
+    options,
+  },
+  {
+    dbName: 'product_microservice_db',
+    collectionName: 'product',
+    indexSpec: { id: 1 },
+    options,
+  },
+  {
+    dbName: 'productLanguage_microservice_db',
+    collectionName: 'productLanguage',
+    indexSpec: { id: 1 },
+    options,
+  },
+  {
+    dbName: 'productPrice_microservice_db',
+    collectionName: 'productPrice',
+    indexSpec: { id: 1 },
+    options,
+  },
+  {
+    dbName: 'productPriceLanguage_microservice_db',
+    collectionName: 'productPriceLanguage',
+    indexSpec: { id: 1 },
+    options,
+  },
+]
+
 async function connect() {
   await client.connect()
-  client.db('category_microservice_db').collection('category').createIndex({ id: 1 }, { unique: true })
-  client.db('product_microservice_db').collection('product').createIndex({ id: 1 }, { unique: true })
-  client.db('productLanguage_microservice_db').collection('productLanguage').createIndex({ id: 1 }, { unique: true })
-  client.db('productPrice_microservice_db').collection('productPrice').createIndex({ id: 1 }, { unique: true })
-  client
-    .db('productPriceLanguage_microservice_db')
-    .collection('productPriceLanguage')
-    .createIndex({ id: 1 }, { unique: true })
+
+  for (const { dbName, collectionName, indexSpec, options } of createIndex) {
+    const db = client.db(dbName)
+    const collection = db.collection(collectionName)
+    const index = await collection.createIndex(indexSpec, options)
+    console.log(`Index ${index} created on ${dbName}.${collectionName}`)
+  }
 
   console.log('Connected successfully to server')
 }
 
 function disconnect() {
   client.close()
-}
-
-function collectionCategory() {
-  const db = client.db('category_microservice_db')
-  return db.collection<Category>('category')
 }
 
 function getCollection<T extends Object>(dbName: string) {

@@ -12,10 +12,11 @@ import (
 )
 
 type ProductLanguageService struct {
-	repo *repository.ProductLanguageRepository
+	repo    *repository.ProductLanguageRepository
+	produce *producer.Producer
 }
 
-func NewProductLanguageService(repo *repository.ProductLanguageRepository) *ProductLanguageService {
+func NewProductLanguageService(repo *repository.ProductLanguageRepository, produce *producer.Producer) *ProductLanguageService {
 	return &ProductLanguageService{repo: repo}
 }
 
@@ -32,9 +33,8 @@ func (s *ProductLanguageService) CreateProductLanguage(req model.ProductLanguage
 		LanguageCode: req.LanguageCode,
 		Attachment:   req.Attachment,
 	}
-	// servers := "localhost:9092"
-	produce := producer.NewProducer()
-	if err := produce.SendMessage("productLanguage.createProductLanguage", "", document); err != nil {
+
+	if err := s.produce.SendMessage("productLanguage.createProductLanguage", "", document); err != nil {
 		return err
 	}
 

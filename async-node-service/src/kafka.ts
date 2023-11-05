@@ -75,4 +75,24 @@ export default class KafkaNode {
       return consumer
     }
   }
+
+  async createKafkaTopic(k: Kafka, topics: string[]) {
+    const admin = k.admin()
+    await admin.connect()
+
+    for (const topic of topics) {
+      await admin.createTopics({
+        topics: [
+          {
+            topic,
+            numPartitions: 3, // Number of partitions
+            replicationFactor: 1, // Replication factor
+          },
+        ],
+      })
+      console.log('Topic created successfully')
+    }
+
+    await admin.disconnect()
+  }
 }

@@ -13,10 +13,11 @@ async function main() {
   }
   console.log(broker)
   const kafkaNode = new KafkaNode(broker)
-  const consumer = await kafkaNode.startConsumer()
-
   const topics: string[] = Object.values(topic).map((item) => item)
 
+  await kafkaNode.createKafkaTopic(kafkaNode.kafka, topics)
+
+  const consumer = await kafkaNode.startConsumer()
   await consumer.subscribe({ topics, fromBeginning: true })
   await consumeMessage(consumer)
 }
