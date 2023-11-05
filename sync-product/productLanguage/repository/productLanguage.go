@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/sing3demons/product.product.sync/productLanguage/language/model"
+	"github.com/sing3demons/product.product.sync/productLanguage/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

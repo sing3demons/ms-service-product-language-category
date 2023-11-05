@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sing3demons/product.product.sync/category/category/model"
+	"github.com/sing3demons/product.product.sync/category/model"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/product/db"
 	"github.com/sing3demons/product.product.sync/utils"

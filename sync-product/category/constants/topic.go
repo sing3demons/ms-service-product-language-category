@@ -7,4 +7,5 @@ const (
 	UPDATE_CATEGORY         = "category.updateCategory"
 	UPDATE_CATEGORY_FAILED  = "category.updateCategoryFailed"
 	UPDATE_CATEGORY_SUCCESS = "category.updateCategorySuccess"
+	DELETE_CATEGORY		 = "category.deleteCategory"
 )

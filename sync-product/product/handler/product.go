@@ -5,27 +5,26 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sing3demons/product.product.sync/productLanguage/language/model"
-	"github.com/sing3demons/product.product.sync/productLanguage/language/service"
+	"github.com/sing3demons/product.product.sync/product/model"
+	"github.com/sing3demons/product.product.sync/product/service"
 )
 
-type ProductLanguage struct {
-	service *service.ProductLanguageService
+type Product struct {
+	service *service.ProductService
 }
 
-func NewProductLanguage(service *service.ProductLanguageService) *ProductLanguage {
-	return &ProductLanguage{service: service}
+func NewProduct(service *service.ProductService) *Product {
+	return &Product{service: service}
 }
 
-func (h *ProductLanguage) CreateCategory(c *gin.Context) {
-	var req model.ProductLanguage
+func (h *Product) CreateProduct(c *gin.Context) {
+	var req model.Products
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	// category, err := h.service.CreateCategory(req)
-	if err := h.service.CreateProductLanguage(req); err != nil {
+	if err := h.service.CreateProduct(req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -33,18 +32,18 @@ func (h *ProductLanguage) CreateCategory(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "success"})
 }
 
-func (h *ProductLanguage) FindCategory(c *gin.Context) {
+func (h *Product) FindProduct(c *gin.Context) {
 	id := c.Param("id")
-	category, err := h.service.FindProductLanguage(id)
+	product, err := h.service.FindProduct(id)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, category)
+	c.JSON(http.StatusOK, product)
 }
 
-func (h *ProductLanguage) FindAllCategory(c *gin.Context) {
+func (h *Product) FindAllProduct(c *gin.Context) {
 	query := model.Query{}
 	name := c.Query("name")
 	if name != "" {
@@ -67,11 +66,12 @@ func (h *ProductLanguage) FindAllCategory(c *gin.Context) {
 	}
 
 	query.LifecycleStatus = c.Query("lifecycleStatus")
-	category, err := h.service.FindAllCategory(query)
+	query.Expand = c.Query("expand")
+	products, err := h.service.FindAllProducts(query)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, category)
+	c.JSON(http.StatusOK, products)
 }

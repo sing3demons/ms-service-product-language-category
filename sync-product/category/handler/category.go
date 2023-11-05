@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sing3demons/product.product.sync/category/category/model"
-	"github.com/sing3demons/product.product.sync/category/category/service"
+	"github.com/sing3demons/product.product.sync/category/model"
+	"github.com/sing3demons/product.product.sync/category/service"
 	"github.com/sing3demons/product.product.sync/common/constants"
 )
 

@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sing3demons/product.product.sync/category/category/model"
-	"github.com/sing3demons/product.product.sync/category/category/repository"
+	"github.com/sing3demons/product.product.sync/category/constants"
+	"github.com/sing3demons/product.product.sync/category/model"
+	"github.com/sing3demons/product.product.sync/category/repository"
 	"github.com/sing3demons/product.product.sync/common"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
@@ -97,7 +98,7 @@ func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) er
 
 	// servers := "localhost:9092"
 	produce := producer.NewProducer()
-	if err := produce.SendMessage("category.updateCategory", "", document); err != nil {
+	if err := produce.SendMessage(constants.UPDATE_CATEGORY, "", document); err != nil {
 		return err
 	}
 
@@ -109,7 +110,7 @@ func (s *CategoryService) DeleteCategory(id string, req model.UpdateCategory) er
 
 	// servers := "localhost:9092"
 	produce := producer.NewProducer()
-	if err := produce.SendMessage("category.deleteCategory", "", document); err != nil {
+	if err := produce.SendMessage(constants.DELETE_CATEGORY, "", document); err != nil {
 		return err
 	}
 

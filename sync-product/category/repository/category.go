@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sing3demons/product.product.sync/category/category/model"
+	"github.com/sing3demons/product.product.sync/category/model"
 	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

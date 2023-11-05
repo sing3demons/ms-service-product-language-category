@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/sing3demons/product.product.sync/producer"
-	"github.com/sing3demons/product.product.sync/product/product/model"
-	"github.com/sing3demons/product.product.sync/product/product/repository"
+	"github.com/sing3demons/product.product.sync/product/model"
+	"github.com/sing3demons/product.product.sync/product/repository"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
