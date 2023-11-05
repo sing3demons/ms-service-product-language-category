@@ -1,5 +1,6 @@
 import axios from 'axios'
 // import express from 'express'
+import { fakerDE as faker } from '@faker-js/faker'
 import { customAlphabet } from 'nanoid'
 
 function nanoid() {
@@ -12,60 +13,35 @@ function nanoid() {
 
 async function createProducts() {
   const createProductLanguageBody = []
-  const productTh = {
-    id: nanoid(),
-    languageCode: 'th',
-    attachment: [
-      {
-        id: nanoid(),
-        attachmentType: 'image',
-        mimeType: 'jpg',
-        url: 'https://randomuser.me/api/portraits/men/11',
-        redirectUrl: 'https://www.google.com',
-        validFor: {
-          endDateTime: '2023-10-25T23:59:59+07:00',
-          startDateTime: '2023-09-28T00:00:00+07:00',
-        },
-        displayInfo: {
-          valueType: 'plaintext',
-          value: ['แมวเหมียว'],
-        },
-      },
-    ],
-  }
+  const productTh = createProductsLanguage('th')
   createProductLanguageBody.push(productTh)
-
-  const productEn = {
-    id: nanoid(),
-    languageCode: 'en',
-    attachment: [
-      {
-        id: nanoid(),
-        attachmentType: 'image',
-        mimeType: 'jpg',
-        url: 'https://randomuser.me/api/portraits/men/12',
-        redirectUrl: 'https://www.google.com',
-        validFor: {
-          endDateTime: '2023-10-25T23:59:59+07:00',
-          startDateTime: '2023-09-28T00:00:00+07:00',
-        },
-        displayInfo: {
-          valueType: 'plaintext',
-          value: ['cat meow'],
-        },
-      },
-    ],
-  }
+  const productEn = createProductsLanguage('en')
   createProductLanguageBody.push(productEn)
+  const productMy = createProductsLanguage('my')
+  createProductLanguageBody.push(productMy)
+  const productKm = createProductsLanguage('km')
+  createProductLanguageBody.push(productKm)
 
   const supportLanguage = []
   supportLanguage.push({
     languageCode: 'th',
     id: productTh.id,
+    referredType: 'product',
   })
   supportLanguage.push({
     languageCode: 'en',
     id: productEn.id,
+    referredType: 'product',
+  })
+  supportLanguage.push({
+    languageCode: 'my',
+    id: productMy.id,
+    referredType: 'product',
+  })
+  supportLanguage.push({
+    languageCode: 'km',
+    id: productKm.id,
+    referredType: 'product',
   })
 
   const categories = await getCategory()
@@ -81,8 +57,10 @@ async function createProducts() {
 
   const product = {
     id: nanoid(),
-    name: 'แมวเหมียว',
-    description: 'แมวเหมียว',
+    name: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    version: '1.0',
+    lastUpdate: new Date().toISOString(),
     lifecycleStatus: 'active',
     supportingLanguage: supportLanguage,
     category: nType,
@@ -103,7 +81,7 @@ async function createProducts() {
     const { id } = category
     const updateCategory = {
       id,
-      product: [
+      products: [
         {
           id: product.id,
           name: product.name,
@@ -148,6 +126,32 @@ async function createProduct(body) {
   } catch (error) {
     console.error(error)
   }
+}
+
+function createProductsLanguage(langCode) {
+  const body = {
+    id: nanoid(),
+    languageCode: langCode.toLowerCase(),
+    attachment: [
+      {
+        id: nanoid(),
+        attachmentType: 'image',
+        mimeType: 'jpg',
+        name: faker.commerce.productName(),
+        url: 'https://randomuser.me/api/portraits/men/12',
+        redirectUrl: 'https://www.google.com',
+        validFor: {
+          endDateTime: '2023-10-25T23:59:59+07:00',
+          startDateTime: '2023-09-28T00:00:00+07:00',
+        },
+        displayInfo: {
+          valueType: 'plaintext',
+          value: ['cat meow'],
+        },
+      },
+    ],
+  }
+  return body
 }
 
 async function getCategory() {
@@ -211,13 +215,18 @@ async function createCategory() {
 }
 
 async function main() {
-  const category = await getCategory()
-  if (!category) {
+  const categories = await getCategory()
+  if (Array.isArray(categories) && categories.length === 0) {
     await createCategory()
+    return
   }
   const start = performance.now()
-  const data = await createProducts()
-  console.log(JSON.stringify(data))
+  const { productLanguageTh, productLanguageEn, product, category } =
+    await createProducts()
+  console.log(JSON.stringify(productLanguageTh))
+  console.log(JSON.stringify(productLanguageEn))
+  console.log(JSON.stringify(product))
+  console.log(JSON.stringify(category))
   const end = performance.now()
   const duration = end - start
   console.log('createProducts', duration.toFixed(2))
