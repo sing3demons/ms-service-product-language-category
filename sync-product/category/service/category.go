@@ -185,7 +185,7 @@ func (s *CategoryService) FindAllCategory(query model.Query) ([]dto.Category, er
 							products = append(products, dto.Products{
 								Type:    "Product",
 								ID:      v.ID,
-								Href:    utils.Href("Products", v.ID),
+								Href:    utils.Href(v.Type, v.ID),
 								Name:    v.Name,
 								Version: v.Version,
 							})
@@ -258,7 +258,7 @@ func (s *CategoryService) GetProductFromCategory(category model.Category) []dto.
 			productRef := dto.Products{
 				Type:            product.Type,
 				ID:              product.ID,
-				Href:            utils.Href("products", product.ID),
+				Href:            utils.Href(product.Type, product.ID),
 				Name:            product.Name,
 				Version:         product.Version,
 				LastUpdate:      product.LastUpdate,
@@ -284,7 +284,7 @@ func (s *CategoryService) GetProductFromCategory(category model.Category) []dto.
 					productRef.Category = append(productRef.Category, dto.Category{
 						Type:            v.Type,
 						ID:              v.ID,
-						Href:            utils.Href("products", v.ID),
+						Href:            utils.Href(v.Type, v.ID),
 						Name:            v.Name,
 						Version:         v.Version,
 						LastUpdate:      utils.ConvertTimeBangkok(v.LastUpdate),

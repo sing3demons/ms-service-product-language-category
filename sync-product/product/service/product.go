@@ -113,21 +113,24 @@ func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWi
 				for _, v := range result {
 					p := []model.Products{}
 					if v.Products != nil {
-						p = append(p, model.Products{
-							Type:            v.Type,
-							ID:              v.ID,
-							Href:            utils.Href("products", v.ID),
-							Name:            v.Name,
-							LifecycleStatus: v.LifecycleStatus,
-							LastUpdate:      v.LastUpdate,
-							ValidFor:        v.ValidFor,
-							Version:         v.Version,
-						})
+						for _, vv := range v.Products {
+							p = append(p, model.Products{
+								ID:              vv.ID,
+								Name:            vv.Name,
+								Type:            vv.Type,
+								Href:            utils.Href(vv.Type, v.ID),
+								LifecycleStatus: vv.LifecycleStatus,
+								LastUpdate:      vv.LastUpdate,
+								ValidFor:        vv.ValidFor,
+								Version:         vv.Version,
+							})
+						}
+
 					}
 					categories = append(categories, model.Category{
 						Type:            v.Type,
 						ID:              v.ID,
-						Href:            utils.Href("category", v.ID),
+						Href:            utils.Href(v.Type, v.ID),
 						Name:            v.Name,
 						Version:         v.Version,
 						LastUpdate:      v.LastUpdate,
@@ -145,7 +148,7 @@ func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWi
 					categories = append(categories, model.Category{
 						Type:            v.Type,
 						ID:              v.ID,
-						Href:            utils.Href("category", v.ID),
+						Href:            utils.Href(v.Type, v.ID),
 						Name:            v.Name,
 						Version:         v.Version,
 						LastUpdate:      v.LastUpdate,
@@ -160,7 +163,7 @@ func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWi
 			ID:                 item.ID,
 			Name:               item.Name,
 			Version:            item.Version,
-			Href:               utils.Href("products", item.ID),
+			Href:               utils.Href(item.Type, item.ID),
 			LastUpdate:         item.LastUpdate,
 			ValidFor:           item.ValidFor,
 			LifecycleStatus:    item.LifecycleStatus,
@@ -208,6 +211,34 @@ func (s *ProductService) GetCategoryFromProducts(categories []model.Category) []
 				fmt.Println(err)
 				return
 			}
+			products := []model.Products{}
+			for _, v := range result.Products {
+				productByte, err := common.HttpGET(utils.GetHost() + "/products/" + v.ID)
+				if err != nil {
+					fmt.Println("error call product for productID:", id)
+					fmt.Println(err)
+					return
+				}
+
+				var product model.Products
+				if err := json.Unmarshal(productByte, &product); err != nil {
+					fmt.Println("error Unmarshal for productID:", id)
+					fmt.Println(err)
+					return
+				}
+
+				products = append(products, model.Products{
+					Type:       product.Type,
+					ID:         product.ID,
+					Name:       product.Name,
+					Version:    product.Version,
+					Href:       utils.Href(product.Type, product.ID),
+					ValidFor:   product.ValidFor,
+					LastUpdate: product.LastUpdate,
+				})
+			}
+
+			result.Products = products
 
 			// var validFor *dto.ValidFor
 			// if result.ValidFor != nil {
