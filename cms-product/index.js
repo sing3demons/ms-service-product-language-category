@@ -26,22 +26,22 @@ async function createProducts() {
   supportLanguage.push({
     languageCode: 'th',
     id: productTh.id,
-    referredType: 'product',
+    '@referredType': 'products',
   })
   supportLanguage.push({
     languageCode: 'en',
     id: productEn.id,
-    referredType: 'product',
+    '@referredType': 'products',
   })
   supportLanguage.push({
     languageCode: 'my',
     id: productMy.id,
-    referredType: 'product',
+    '@referredType': 'products',
   })
   supportLanguage.push({
     languageCode: 'km',
     id: productKm.id,
-    referredType: 'product',
+    '@referredType': 'products',
   })
 
   const categories = await getCategory()

@@ -27,5 +27,5 @@ type PopRelationship struct {
 type SupportingLanguage struct {
 	Id           string `json:"id" bson:"id"`
 	LanguageCode string `json:"languageCode" bson:"languageCode"`
-	ReferredType string `json:"referredType" bson:"referredType"`
+	ReferredType string `json:"@referredType" bson:"@referredType"`
 }

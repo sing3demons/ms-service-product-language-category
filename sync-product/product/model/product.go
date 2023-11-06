@@ -7,7 +7,7 @@ type ProductLanguage struct {
 	ID           string       `json:"id,omitempty" validate:"required" bson:"id,omitempty" binding:"required"`
 	Href         string       `json:"href,omitempty" bson:"href,omitempty"`
 	LanguageCode string       `json:"languageCode,omitempty" bson:"languageCode,omitempty" binding:"required"`
-	ReferredType string       `json:"referredType,omitempty" bson:"referredType,omitempty"`
+	ReferredType string       `json:"@referredType,omitempty" bson:"@referredType,omitempty"`
 	Name         string       `json:"name,omitempty" bson:"name,omitempty"`
 	Version      string       `json:"version,omitempty" bson:"version,omitempty"`
 	LastUpdate   string       `json:"lastUpdate,omitempty" bson:"lastUpdate,omitempty"`

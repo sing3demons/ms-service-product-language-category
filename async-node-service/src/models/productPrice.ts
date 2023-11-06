@@ -30,5 +30,5 @@ export interface IPopRelationship {
 export interface TORO_SupportingLanguage {
   id?: string
   languageCode?: string
-  referredType?: string
+  '@referredType'?: string
 }
