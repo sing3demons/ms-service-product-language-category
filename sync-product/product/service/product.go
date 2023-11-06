@@ -30,16 +30,16 @@ func (s *ProductService) CreateProduct(req model.Products) error {
 		return fmt.Errorf("id is empty")
 	}
 
-	document := model.Products{
-		Name:               req.Name,
-		Version:            req.Version,
-		LastUpdate:         utils.ConvertTimeBangkok(time.Now().String()),
-		ValidFor:           req.ValidFor,
-		ID:                 req.ID,
-		LifecycleStatus:    req.LifecycleStatus,
-		Category:           req.Category,
-		SupportingLanguage: req.SupportingLanguage,
-	}
+	var document model.Products
+	document.ID = req.ID
+	document.Name = req.Name
+	document.Version = req.Version
+	document.LastUpdate = req.LastUpdate
+	document.ValidFor = req.ValidFor
+	document.LifecycleStatus = req.LifecycleStatus
+	document.Category = req.Category
+	document.SupportingLanguage = req.SupportingLanguage
+	document.Type = "Products"
 
 	if err := s.produce.SendMessage("product.createProduct", "", document); err != nil {
 		return err
@@ -118,7 +118,7 @@ func (s *ProductService) FindAllProducts(query dto.Query) (*model.ResponseDataWi
 								ID:              vv.ID,
 								Name:            vv.Name,
 								Type:            vv.Type,
-								Href:            utils.Href(vv.Type, v.ID),
+								Href:            utils.Href(vv.Type, vv.ID),
 								LifecycleStatus: vv.LifecycleStatus,
 								LastUpdate:      vv.LastUpdate,
 								ValidFor:        vv.ValidFor,

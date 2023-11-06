@@ -54,18 +54,23 @@ func (r *ProductLanguageRepository) FindProductLanguageById(_id primitive.Object
 
 	return &category, nil
 }
-func (r *ProductLanguageRepository) FindAllProductLanguage(filter bson.M) ([]model.ProductLanguage, error) {
+func (r *ProductLanguageRepository) FindAllProductLanguage(filter bson.D) ([]model.ProductLanguage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	filter = append(filter, bson.E{Key: "deleteDate", Value: nil})
 	cursor, err := r.db.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var categories []model.ProductLanguage
-	if err := cursor.All(ctx, &categories); err != nil {
-		return nil, err
+	var products []model.ProductLanguage
+	for cursor.Next(ctx) {
+		var product model.ProductLanguage
+		if err := cursor.Decode(&product); err != nil {
+			return nil, err
+		}
+		products = append(products, product)
 	}
 
-	return categories, nil
+	return products, nil
 }
