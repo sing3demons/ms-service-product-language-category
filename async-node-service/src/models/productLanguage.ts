@@ -11,7 +11,6 @@ export interface ProductLanguage {
   version?: string
   lastUpdate?: string
   validFor?: ValidFor
-  referredType?: string
 }
 
 export interface Attachment {

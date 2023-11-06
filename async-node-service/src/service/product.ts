@@ -30,7 +30,7 @@ async function createProduct(req: Product) {
             name: item?.name || undefined,
             '@type': 'ProductLanguage',
             languageCode: item.languageCode,
-            referredType: item['referredType'],
+            '@referredType': item['@referredType'],
           })
         }
       }
@@ -42,7 +42,7 @@ async function createProduct(req: Product) {
     }
     const doc: Product = {
       id: req.id,
-      '@type': 'Product',
+      '@type': 'Products',
       category: category,
       description: req.description,
       lastUpdate: req.lastUpdate,
