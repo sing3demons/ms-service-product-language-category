@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/sing3demons/product.product.sync/utils"
 )
 
 type Producer struct {
@@ -26,8 +28,27 @@ func NewProducer() *Producer {
 }
 
 func (p *Producer) SendMessage(topic string, key string, message interface{}) error {
+	event := utils.EventMessage{}
+	// Set Header
+	event.Header.Version = "1.0"
+	event.Header.Timestamp = time.Now()
+	event.Header.OrgService = "product.product.sync"
+	event.Header.From = "product.product.sync"
+	event.Header.Channel = "product.product.sync"
+	event.Header.Broker = "product.product.sync"
+	event.Header.UseCase = "product.product.sync"
+	event.Header.Session = utils.GetTransactionID()
+	event.Header.Transaction = utils.GetTransactionID()
+	event.Header.Communication = "product.product.sync"
+	event.Header.GroupTags = []interface{}{}
+	event.Header.Identity.Device = 0
+	event.Header.BaseAPIVersion = "1.0"
+	event.Header.SchemaVersion = "1.0"
+	event.Header.InstanceData = "product.product.sync"
 
-	messageJSON, err := json.Marshal(message)
+	event.Body = message
+
+	messageJSON, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}

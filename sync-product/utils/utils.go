@@ -32,3 +32,7 @@ func ConvertTimeBangkok(dataTime string) string {
 	}
 	return t.In(loc).Format("2006-01-02T15:04:05Z07:00")
 }
+
+func GetTransactionID() string {
+	return time.Now().Format("20060102150405")
+}
