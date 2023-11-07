@@ -4,7 +4,7 @@ import logger from './logger.js'
 export function GetDataFromEvent<T>(message: KafkaMessage): T {
   const event = {
     offset: message.offset,
-    body: message?.value?.toString(),
+    data: message?.value?.toString(),
     key: message?.key?.toString(),
     headers: message.headers,
     timestamp: message.timestamp,
@@ -13,7 +13,8 @@ export function GetDataFromEvent<T>(message: KafkaMessage): T {
   }
 
   const headers = event.headers
-  const data = event?.body
+  const body: Event = event?.data ? JSON.parse(event.data) : null
+  const data = body.body
 
   logger.info('event ==================>')
   logger.info(JSON.stringify(event))
