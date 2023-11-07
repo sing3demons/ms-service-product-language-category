@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/common"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
@@ -25,7 +26,7 @@ func NewProductService(repo *repository.ProductRepository, produce *producer.Pro
 	return &ProductService{repo: repo, produce: produce}
 }
 
-func (s *ProductService) CreateProduct(req model.Products) error {
+func (s *ProductService) CreateProduct(c *gin.Context, req model.Products) error {
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
 	}
@@ -41,7 +42,7 @@ func (s *ProductService) CreateProduct(req model.Products) error {
 	document.SupportingLanguage = req.SupportingLanguage
 	document.Type = "Products"
 
-	if err := s.produce.SendMessage("product.createProduct", "", document); err != nil {
+	if err := s.produce.SendMessage(c, "product.createProduct", "", document); err != nil {
 		return err
 	}
 

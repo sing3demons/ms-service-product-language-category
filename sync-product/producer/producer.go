@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/utils"
 )
 
@@ -27,18 +28,23 @@ func NewProducer() *Producer {
 	}
 }
 
-func (p *Producer) SendMessage(topic string, key string, message interface{}) error {
+func (p *Producer) SendMessage(c *gin.Context, topic string, key string, message interface{}) error {
+	userAgent := c.GetHeader("User-Agent")
+	transactionId := c.GetHeader("X-Transaction-Id")
+	if transactionId == "" {
+		transactionId = utils.GetTransactionID()
+	}
 	event := utils.EventMessage{}
 	// Set Header
 	event.Header.Version = "1.0"
 	event.Header.Timestamp = time.Now()
 	event.Header.OrgService = "product.product.sync"
-	event.Header.From = "product.product.sync"
-	event.Header.Channel = "product.product.sync"
-	event.Header.Broker = "product.product.sync"
-	event.Header.UseCase = "product.product.sync"
+	event.Header.From = c.ClientIP() + " " + userAgent
+	event.Header.Channel = topic
+	event.Header.Broker = p.servers
+	event.Header.UserAgent = userAgent
 	event.Header.Session = utils.GetTransactionID()
-	event.Header.Transaction = utils.GetTransactionID()
+	event.Header.Transaction = transactionId
 	event.Header.Communication = "product.product.sync"
 	event.Header.GroupTags = []interface{}{}
 	event.Header.Identity.Device = 0

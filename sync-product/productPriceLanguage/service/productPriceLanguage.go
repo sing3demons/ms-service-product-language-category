@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/productPriceLanguage/repository"
@@ -46,7 +47,7 @@ func (s *ProductPriceLanguageService) FindProductPriceLanguage(id string) (*dto.
 	return s.repo.FindOne(id)
 }
 
-func (s *ProductPriceLanguageService) CreateProductPriceLanguage(req dto.ProductPriceLanguage) error {
+func (s *ProductPriceLanguageService) CreateProductPriceLanguage(c *gin.Context, req dto.ProductPriceLanguage) error {
 	doc := dto.ProductPriceLanguage{
 		Type:         "productPriceLanguage",
 		Id:           req.Id,
@@ -61,7 +62,7 @@ func (s *ProductPriceLanguageService) CreateProductPriceLanguage(req dto.Product
 		doc.ValidFor.EndDateTime = utils.ConvertTimeBangkok(req.ValidFor.EndDateTime)
 	}
 
-	if err := s.produce.SendMessage("product.createProductPriceLanguage", "", doc); err != nil {
+	if err := s.produce.SendMessage(c,"product.createProductPriceLanguage", "", doc); err != nil {
 		return err
 	}
 	return nil

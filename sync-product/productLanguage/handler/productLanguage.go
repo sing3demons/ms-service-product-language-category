@@ -24,8 +24,7 @@ func (h *ProductLanguage) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	// category, err := h.service.CreateCategory(req)
-	if err := h.service.CreateProductLanguage(req); err != nil {
+	if err := h.service.CreateProductLanguage(c, req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}

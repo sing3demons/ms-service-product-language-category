@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/productLanguage/model"
 	"github.com/sing3demons/product.product.sync/productLanguage/repository"
@@ -20,7 +21,7 @@ func NewProductLanguageService(repo *repository.ProductLanguageRepository, produ
 	return &ProductLanguageService{repo: repo, produce: produce}
 }
 
-func (s *ProductLanguageService) CreateProductLanguage(req model.ProductLanguage) error {
+func (s *ProductLanguageService) CreateProductLanguage(c *gin.Context, req model.ProductLanguage) error {
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
 	}
@@ -35,7 +36,7 @@ func (s *ProductLanguageService) CreateProductLanguage(req model.ProductLanguage
 		Attachment:   req.Attachment,
 	}
 
-	if err := s.produce.SendMessage("productLanguage.createProductLanguage", "", document); err != nil {
+	if err := s.produce.SendMessage(c, "productLanguage.createProductLanguage", "", document); err != nil {
 		fmt.Printf("error: %v", err)
 		return err
 	}

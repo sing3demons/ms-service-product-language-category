@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/common/dto"
 	"github.com/sing3demons/product.product.sync/producer"
 	"github.com/sing3demons/product.product.sync/productPrice/repository"
@@ -58,7 +59,7 @@ func (svc *ProductPriceService) FindProductPrice(id string) (*dto.ProductPrice, 
 	return svc.repo.FindOne(id)
 }
 
-func (svc *ProductPriceService) CreateProductPrice(req dto.ProductPrice) error {
+func (svc *ProductPriceService) CreateProductPrice(c *gin.Context, req dto.ProductPrice) error {
 
 	doc := dto.ProductPrice{
 		Id:                 req.Id,
@@ -77,7 +78,7 @@ func (svc *ProductPriceService) CreateProductPrice(req dto.ProductPrice) error {
 		doc.ValidFor.EndDateTime = utils.ConvertTimeBangkok(req.ValidFor.EndDateTime)
 	}
 
-	if err := svc.produce.SendMessage("product.createProductPrice", "", doc); err != nil {
+	if err := svc.produce.SendMessage(c, "product.createProductPrice", "", doc); err != nil {
 		return err
 	}
 	return nil

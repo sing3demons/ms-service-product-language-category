@@ -66,7 +66,7 @@ func (h *ProductPriceLanguageHandler) CreateProductPrice(c *gin.Context) {
 		return
 	}
 
-	if err := h.svc.CreateProductPriceLanguage(req); err != nil {
+	if err := h.svc.CreateProductPriceLanguage(c, req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}

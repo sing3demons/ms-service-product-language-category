@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/category/constants"
 	"github.com/sing3demons/product.product.sync/category/model"
 	"github.com/sing3demons/product.product.sync/category/repository"
@@ -19,7 +20,7 @@ import (
 )
 
 type CategoryService struct {
-	repo *repository.CategoryRepository
+	repo    *repository.CategoryRepository
 	produce *producer.Producer
 }
 
@@ -27,7 +28,7 @@ func NewCategoryService(repo *repository.CategoryRepository, produce *producer.P
 	return &CategoryService{repo: repo, produce: produce}
 }
 
-func (s *CategoryService) CreateCategory(req model.Category) error {
+func (s *CategoryService) CreateCategory(c *gin.Context, req model.Category) error {
 	req.ID, _ = utils.RandomNanoID(11)
 	if req.ID == "" {
 		return fmt.Errorf("id is empty")
@@ -44,14 +45,14 @@ func (s *CategoryService) CreateCategory(req model.Category) error {
 		LifecycleStatus: req.LifecycleStatus,
 	}
 
-	if err := s.produce.SendMessage(constants.CREATE_CATEGORY, "", document); err != nil {
+	if err := s.produce.SendMessage(c, constants.CREATE_CATEGORY, "", document); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) error {
+func (s *CategoryService) UpdateCategory(c *gin.Context, id string, req model.UpdateCategory) error {
 	document := model.UpdateCategory{}
 
 	if req.ID == id {
@@ -95,17 +96,17 @@ func (s *CategoryService) UpdateCategory(id string, req model.UpdateCategory) er
 		document.Products = products
 	}
 
-	if err := s.produce.SendMessage(constants.UPDATE_CATEGORY, "", document); err != nil {
+	if err := s.produce.SendMessage(c, constants.UPDATE_CATEGORY, "", document); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *CategoryService) DeleteCategory(id string, req model.UpdateCategory) error {
+func (s *CategoryService) DeleteCategory(c *gin.Context, id string, req model.UpdateCategory) error {
 	document := model.UpdateCategory{}
 
-	if err := s.produce.SendMessage(constants.DELETE_CATEGORY, "", document); err != nil {
+	if err := s.produce.SendMessage(c, constants.DELETE_CATEGORY, "", document); err != nil {
 		return err
 	}
 

@@ -15,6 +15,7 @@ type EventMessage struct {
 		Transaction   string        `json:"transaction,omitempty"`
 		Communication string        `json:"communication,omitempty"`
 		GroupTags     []interface{} `json:"groupTags,omitempty"`
+		UserAgent     string        `json:"userAgent,omitempty"`
 		Identity      struct {
 			Device int64 `json:"device,omitempty"`
 		} `json:"identity,omitempty"`

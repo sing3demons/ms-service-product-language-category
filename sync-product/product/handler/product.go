@@ -25,7 +25,7 @@ func (h *Product) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.CreateProduct(req); err != nil {
+	if err := h.service.CreateProduct(c, req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
