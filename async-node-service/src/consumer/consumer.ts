@@ -14,22 +14,16 @@ import { IProductPriceLanguageDTO } from '../models/productPriceLanguage.js'
 import { createProductPriceLanguage } from '../service/productPriceLanguage.js'
 import { GetDataFromEvent } from '../utils/index.js'
 
-
 async function consumeMessage(consumer: Consumer) {
   try {
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
-        console.log({
-          topic,
-          partition,
-          offset: message.offset,
-          value: message?.value?.toString(),
-        })
+        logger.info(JSON.stringify({ topic, partition, message }))
         try {
           switch (topic) {
             case TOPIC.createCategory:
               if (message.value) {
-                const body = GetDataFromEvent<Category>(message.value)
+                const body = GetDataFromEvent<Category>(message)
                 const result = await createCategory(body)
                 // if (result === null || result === undefined) {
                 //   await producer(TOPIC.createCategoryFailed, result)
@@ -40,7 +34,7 @@ async function consumeMessage(consumer: Consumer) {
               break
             case TOPIC.updateCategory:
               if (message.value) {
-                const req = GetDataFromEvent<Category>(message.value)
+                const req = GetDataFromEvent<Category>(message)
                 if (Array.isArray(req.products)) {
                   const result = await updateCategory(req)
                   logger.info(JSON.stringify(result))
@@ -49,7 +43,7 @@ async function consumeMessage(consumer: Consumer) {
               break
             case TOPIC.createProductLanguage:
               if (message.value) {
-                const result = await createProductLanguage(GetDataFromEvent<ProductLanguage>(message.value))
+                const result = await createProductLanguage(GetDataFromEvent<ProductLanguage>(message))
                 // if (result === null || result === undefined) {
                 //   await producer(TOPIC.createProductLanguageFailed, result)
                 // } else {
@@ -59,7 +53,7 @@ async function consumeMessage(consumer: Consumer) {
               break
             case TOPIC.createProduct:
               if (message.value) {
-                const result = await createProduct(GetDataFromEvent<Product>(message.value))
+                const result = await createProduct(GetDataFromEvent<Product>(message))
                 // if (result === null || result === undefined) {
                 //   await producer(TOPIC.createProductFailed, result)
                 // } else {
@@ -80,7 +74,7 @@ async function consumeMessage(consumer: Consumer) {
               break
             case TOPIC.createProductPriceLanguage:
               if (message.value) {
-                const result = await createProductPriceLanguage(GetDataFromEvent<IProductPriceLanguageDTO>(message.value))
+                const result = await createProductPriceLanguage(GetDataFromEvent<IProductPriceLanguageDTO>(message))
                 if (result === null || result === undefined) {
                   // await producer(TOPIC.createProductPriceLanguageFailed, result)
                 } else {
