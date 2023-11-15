@@ -84,8 +84,8 @@ func (r *CategoryRepository) FindCategoryById(_id primitive.ObjectID) (*model.Ca
 }
 
 func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 
 	filter := bson.D{}
 
@@ -109,20 +109,21 @@ func (r *CategoryRepository) FindAllCategory(doc bson.D) ([]model.Category, erro
 
 	}
 
-	cursor, err := r.db.Find(ctx, filter)
+	// cursor, err := r.db.Find(ctx, filter)
+	categories, err := utils.GetMultiple[model.Category](r.db, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	categories := []model.Category{}
+	// categories := []model.Category{}
 
-	for cursor.Next(ctx) {
-		var category model.Category
-		if err := cursor.Decode(&category); err != nil {
-			return nil, err
-		}
-		fmt.Printf("category: %+v\n", category)
-		categories = append(categories, category)
-	}
+	// for cursor.Next(ctx) {
+	// 	var category model.Category
+	// 	if err := cursor.Decode(&category); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	fmt.Printf("category: %+v\n", category)
+	// 	categories = append(categories, category)
+	// }
 	return categories, nil
 }

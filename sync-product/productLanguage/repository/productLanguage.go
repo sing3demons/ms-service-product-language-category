@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/sing3demons/product.product.sync/productLanguage/model"
+	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -55,22 +56,23 @@ func (r *ProductLanguageRepository) FindProductLanguageById(_id primitive.Object
 	return &category, nil
 }
 func (r *ProductLanguageRepository) FindAllProductLanguage(filter bson.D) ([]model.ProductLanguage, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 	filter = append(filter, bson.E{Key: "deleteDate", Value: nil})
-	cursor, err := r.db.Find(ctx, filter)
+	// cursor, err := r.db.Find(ctx, filter)
+	products, err := utils.GetMultiple[model.ProductLanguage](r.db, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var products []model.ProductLanguage
-	for cursor.Next(ctx) {
-		var product model.ProductLanguage
-		if err := cursor.Decode(&product); err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
+	// var products []model.ProductLanguage
+	// for cursor.Next(ctx) {
+	// 	var product model.ProductLanguage
+	// 	if err := cursor.Decode(&product); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	products = append(products, product)
+	// }
 
 	return products, nil
 }

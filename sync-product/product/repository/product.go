@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sing3demons/product.product.sync/product/model"
+	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -56,9 +57,10 @@ func (r *ProductRepository) FindProductById(_id primitive.ObjectID) (*model.Prod
 
 	return &product, nil
 }
+
 func (r *ProductRepository) FindAllProduct(doc bson.D) ([]model.Products, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 
 	filter := bson.D{}
 	filter = append(filter, bson.E{Key: "deleteDate", Value: nil})
@@ -81,19 +83,20 @@ func (r *ProductRepository) FindAllProduct(doc bson.D) ([]model.Products, error)
 		}
 	}
 
-	cursor, err := r.db.Find(ctx, filter)
+	// cursor, err := r.db.Find(ctx, filter)
+	products, err := utils.GetMultiple[model.Products](r.db, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var products []model.Products
-	for cursor.Next(ctx) {
-		var product model.Products
-		if err := cursor.Decode(&product); err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
+	// var products []model.Products
+	// for cursor.Next(ctx) {
+	// 	var product model.Products
+	// 	if err := cursor.Decode(&product); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	products = append(products, product)
+	// }
 	// if err := cursor.All(ctx, &products); err != nil {
 	// 	return nil, err
 	// }

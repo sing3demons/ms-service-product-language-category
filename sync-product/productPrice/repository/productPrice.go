@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sing3demons/product.product.sync/common/dto"
+	"github.com/sing3demons/product.product.sync/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -19,8 +20,8 @@ func NewProductPriceRepository(db *mongo.Collection) *ProductPriceRepository {
 	return &ProductPriceRepository{db}
 }
 func (r *ProductPriceRepository) FindAll(doc bson.D) ([]dto.ProductPrice, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 
 	filter := bson.D{}
 	filter = append(filter, bson.E{Key: "deleteDate", Value: nil})
@@ -41,20 +42,21 @@ func (r *ProductPriceRepository) FindAll(doc bson.D) ([]dto.ProductPrice, error)
 		}
 	}
 
-	cur, err := r.db.Find(ctx, filter)
+	// cur, err := r.db.Find(ctx, filter)
+	products, err := utils.GetMultiple[dto.ProductPrice](r.db, filter)
 	if err != nil {
 		return nil, err
 	}
-	defer cur.Close(ctx)
-	products := []dto.ProductPrice{}
-	for cur.Next(ctx) {
-		var product dto.ProductPrice
-		err := cur.Decode(&product)
-		if err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
+	// defer cur.Close(ctx)
+	// products := []dto.ProductPrice{}
+	// for cur.Next(ctx) {
+	// 	var product dto.ProductPrice
+	// 	err := cur.Decode(&product)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	products = append(products, product)
+	// }
 	return products, nil
 }
 
