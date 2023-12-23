@@ -56,6 +56,29 @@ func (s *ProductService) FindProduct(id string) (*model.Products, error) {
 		return nil, err
 	}
 
+	productLanguage := []model.ProductLanguage{}
+	var wg sync.WaitGroup
+	for _, v := range product.SupportingLanguage {
+		wg.Add(1)
+		go func(id string) {
+			defer wg.Done()
+			url := utils.GetHost() + "/productLanguage/" + id
+			result, err := common.RequestHttpGet[model.ProductLanguage](url)
+			if err != nil {
+				fmt.Printf("error call product for productID: %s, error : %v\n", id, err)
+				return
+			}
+
+			productLanguage = append(productLanguage, *result)
+
+		}(v.ID)
+	}
+	wg.Wait()
+
+	if len(productLanguage) != 0 {
+		product.SupportingLanguage = productLanguage
+	}
+
 	return product, nil
 }
 

@@ -66,9 +66,9 @@ func main() {
 		service := service_productLanguage.NewProductLanguageService(repo, produce)
 		handler := handler_productLanguage.NewProductLanguage(service)
 
-		r.GET("/productLanguage", handler.FindAllCategory)
-		r.GET("/productLanguage/:id", handler.FindCategory)
-		r.POST("/productLanguage", handler.CreateCategory)
+		r.GET("/productLanguage", handler.FindAllProductLanguage)
+		r.GET("/productLanguage/:id", handler.FindProductLanguage)
+		r.POST("/productLanguage", handler.CreateProductLanguage)
 		// 	topics := []string{
 		// 		constants.CREATE_CATEGORY,
 		// 		constants.CREATE_CATEGORY_FAILED,

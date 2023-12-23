@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/common/dto"
@@ -34,6 +35,7 @@ func (h *Product) CreateProduct(c *gin.Context) {
 }
 
 func (h *Product) FindProduct(c *gin.Context) {
+	start := time.Now()
 	id := c.Param("id")
 	product, err := h.service.FindProduct(id)
 	if err != nil {
@@ -41,7 +43,10 @@ func (h *Product) FindProduct(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, product)
+	c.JSON(http.StatusOK, map[string]any{
+		"product": product,
+		"duration": time.Since(start).String(),
+	})
 }
 
 func (h *Product) FindAllProduct(c *gin.Context) {

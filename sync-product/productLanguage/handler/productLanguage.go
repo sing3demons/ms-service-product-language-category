@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sing3demons/product.product.sync/productLanguage/model"
 	"github.com/sing3demons/product.product.sync/productLanguage/service"
+	"github.com/sing3demons/product.product.sync/utils"
 )
 
 type ProductLanguage struct {
@@ -17,7 +18,7 @@ func NewProductLanguage(service *service.ProductLanguageService) *ProductLanguag
 	return &ProductLanguage{service: service}
 }
 
-func (h *ProductLanguage) CreateCategory(c *gin.Context) {
+func (h *ProductLanguage) CreateProductLanguage(c *gin.Context) {
 	var req model.ProductLanguage
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -32,18 +33,19 @@ func (h *ProductLanguage) CreateCategory(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "success"})
 }
 
-func (h *ProductLanguage) FindCategory(c *gin.Context) {
+func (h *ProductLanguage) FindProductLanguage(c *gin.Context) {
 	id := c.Param("id")
-	category, err := h.service.FindProductLanguage(id)
+	product, err := h.service.FindProductLanguage(id)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+	product.Href = utils.GetHost() + "/" + product.Type + "/" + product.ID
 
-	c.JSON(http.StatusOK, category)
+	c.JSON(http.StatusOK, product)
 }
 
-func (h *ProductLanguage) FindAllCategory(c *gin.Context) {
+func (h *ProductLanguage) FindAllProductLanguage(c *gin.Context) {
 	query := model.Query{}
 	name := c.Query("name")
 	if name != "" {
